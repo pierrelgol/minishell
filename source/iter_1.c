@@ -27,6 +27,51 @@ t_token_iter *iter_create(t_allocator *allocator, t_vector *tokens)
 	iter_update_count(iter);
 	return (iter);
 }
+t_token_iter *iter_create(t_allocator *allocator, t_vector *tokens)
+{
+	t_token_iter *iter;
+
+	iter = allocator->create(allocator, sizeof(t_token_iter));
+	if (!iter)
+		return (NULL);
+	iter->allocator = allocator;
+	iter->capacity = MAX_TOKENS;
+	iter->count = 0;
+	iter->index = 0;
+	iter->tokens = tokens;
+	iter_update_count(iter);
+	return (iter);
+}
+t_token_iter *iter_create(t_allocator *allocator, t_vector *tokens)
+{
+	t_token_iter *iter;
+
+	iter = allocator->create(allocator, sizeof(t_token_iter));
+	if (!iter)
+		return (NULL);
+	iter->allocator = allocator;
+	iter->capacity = MAX_TOKENS;
+	iter->count = 0;
+	iter->index = 0;
+	iter->tokens = tokens;
+	iter_update_count(iter);
+	return (iter);
+}
+t_token_iter *iter_create(t_allocator *allocator, t_vector *tokens)
+{
+	t_token_iter *iter;
+
+	iter = allocator->create(allocator, sizeof(t_token_iter));
+	if (!iter)
+		return (NULL);
+	iter->allocator = allocator;
+	iter->capacity = MAX_TOKENS;
+	iter->count = 0;
+	iter->index = 0;
+	iter->tokens = tokens;
+	iter_update_count(iter);
+	return (iter);
+}
 
 void iter_update_count(t_token_iter *iter)
 {
