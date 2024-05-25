@@ -41,6 +41,16 @@ void shell_prompt_init(t_allocator *allocator, t_shell_prompt *self, char *pwd)
 	allocator->destroy(allocator, temp1);
 	allocator->destroy(allocator, temp2);
 }
+
+char *shell_prompt_get(t_shell_prompt *self)
+{
+	if (DEBUG == 1)
+	{
+		print(1, "\nshell_prompt_get()\n%s\n",self->prompt);
+	}
+	return (self->prompt);
+}
+
 void shell_prompt_deinit(t_allocator *allocator, t_shell_prompt *self)
 {
 	assert(allocator != NULL);

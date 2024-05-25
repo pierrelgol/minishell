@@ -46,6 +46,12 @@ void token_deinit(t_allocator *allocator, t_token *self)
 	allocator->destroy(allocator, self->str);
 }
 
+void     token_print(t_token *self)
+{
+	if (self)
+		print(1,"%s",self->str);
+}
+
 t_token *token_destroy(t_allocator *allocator, t_token *self)
 {
 	assert(self != NULL);

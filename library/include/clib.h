@@ -259,6 +259,10 @@ uint64_t string_length(const char *string);
 uint64_t string_split_length(const char **split);
 uint64_t string_index_of_difference(const char *s1, const char *s2);
 uint64_t string_compute_replace_sequence_size(const char *haystack, const char *needle, const char *with);
+char **string_split_get_split_buffer_predicate(t_allocator *const allcator, const char *source, bool (*predicate)(int32_t), uint64_t *out_size);
+char **string_split_get_split_buffer_none(t_allocator *const allcator, const char *source, const t_bitset *none, uint64_t *out_size);
+char **string_split_get_split_buffer_any(t_allocator *const allcator, const char *source, const t_bitset *any, uint64_t *out_size);
+char **string_split_get_split_buffer_scalar(t_allocator *const allcator, const char *source, const int32_t scalar, uint64_t *out_size);
 
 int32_t string_compare(const char *s1, const char *s2);
 int32_t string_ncompare(const char *s1, const char *s2, const uint64_t n);

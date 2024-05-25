@@ -35,14 +35,22 @@ void token_buffer_init(t_allocator *allocator, t_token_buffer *self, char **toke
 	assert(allocator != NULL);
 	assert(self != NULL);
 	assert(tokenized != NULL);
+	if (DEBUG == 1)
+		print(1, "\ntoken_buffer_init\n");
 	i = 0;
+	self->count = 0;
+	self->index = 0;
 	while (tokenized[i])
 	{
 		token = token_create(allocator);
 		token_init(allocator, token, tokenized[i]);
-		token_buffer_push(self, token);
+		token_buffer_insert_at(self, token, i);
 		++i;
+		if (DEBUG == 1)
+			print(1, "[%d][%s]\n", i, token->str);
 	}
+	if (DEBUG == 1)
+		print(1, "\n");
 }
 
 bool token_buffer_insert_at(t_token_buffer *self, t_token *token, uint64_t index)
@@ -61,11 +69,12 @@ t_token *token_buffer_remove_at(t_token_buffer *self, uint64_t index)
 
 	if (vector_is_empty(self->tokens))
 		return (NULL);
+	assert(index < self->count);
 	token = (t_token *) vector_peek_at(self->tokens, index);
 	if (vector_remove_at(self->tokens, index))
 	{
-		self->count -= 1;
 		return (token);
+		self->count -= 1;
 	}
 	return (NULL);
 }
@@ -221,15 +230,53 @@ bool token_buffer_end_of_buffer(t_token_buffer *self, uint64_t n)
 void token_buffer_deinit(t_allocator *allocator, t_token_buffer *self)
 {
 	t_token *token;
+	uint64_t i;
 
 	assert(allocator != NULL);
 	assert(self != NULL);
-	while (!token_buffer_is_empty(self))
+	if (DEBUG == 1)
+		print(1, "\ntoken_buffer_deinit\n");
+	i = 0;
+	while (token_buffer_end_of_buffer(self, i))
 	{
-		token = token_buffer_pop(self);
+		token = token_buffer_remove_at(self, i);
+		if (DEBUG == 1)
+			print(1, "\n[%d][%s]\n", i, token->str);
 		token_destroy(allocator, token);
+		++i;
 	}
+	if (DEBUG == 1)
+		print(1, "\n");
+	self->count = 0;
 	self->index = 0;
+}
+
+void buffer_print(t_token_buffer *self)
+{
+	t_token *token;
+	uint64_t i;
+	uintptr_t *data;
+	if (DEBUG == 1)
+	{
+		print(1, "\nbuffer_print\n");
+		print(1, "self->allocator = %p\n", self->allocator);
+		print(1, "self->count = %zu\n", self->count);
+		print(1, "self->index = %zu\n", self->index);
+		print(1, "self->vector = %p\n", self->tokens);
+		print(1, "self->vector->allocator = %p\n", self->tokens->allocator);
+		print(1, "self->vector->data = %p\n", self->tokens->data);
+		print(1, "self->vector->capacity = %zu\n", self->tokens->capacity);
+		print(1, "self->vector->count = %zu\n", self->tokens->count);
+		data = self->tokens->data;
+		i = 0;
+		while (i < self->tokens->count)
+		{
+			token = (t_token*)data[i];
+			print(1,"[%d][%s]\n",i, token->str);
+			++i;
+		}
+
+	}
 }
 
 t_token_buffer *token_buffer_destroy(t_allocator *allocator, t_token_buffer *self)

@@ -42,6 +42,15 @@ void shell_input_init(t_allocator *allocator, t_shell_input *self, char *prompt)
 	}
 }
 
+char *shell_input_get(t_shell_input *self)
+{
+	if (DEBUG == 1)
+	{
+		print(1, "\nshell_input_get()\n%s\n", self->line);
+	}
+	return (self->line);
+}
+
 void shell_input_deinit(t_allocator *allocator, t_shell_input *self)
 {
 	assert(allocator != NULL);

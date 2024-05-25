@@ -14,7 +14,9 @@ CC = clang
 CFLAGS = -Wall                              \
          -Wextra                            \
          -g3                                \
-         -fno-omit-frame-pointer            
+         -fno-omit-frame-pointer            \
+         -fsanitize=undefined  \
+         -fsanitize=address  \
 
 LIBRARY_DIR = ./library
 LIB_NAME = $(LIBRARY_DIR)/libclib.a

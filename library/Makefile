@@ -14,22 +14,11 @@
 CC     =  clang
 RM     =  rm -f
 CFLAGS = -Wall                              \
- 		 -Werror                            \
- 		 -Wextra                            \
- 		 -g3                                \
-
-#  		 -fno-omit-frame-pointer            \
-# 	     -fsanitize=undefined                     \
-#          -fsanitize=memory                     \
-# CFLAGS = -O3
-
-
-# CFLAGS =   -Wall                                    \
-#            -Wextra                                  \
-#            -Wextra                                  \
-#            -g3                                      \
-#            -fno-omit-frame-pointer                  \
-#            -O0
+         -Wextra                            \
+         -g3                                \
+         -fno-omit-frame-pointer            \
+         -fsanitize=undefined  \
+         -fsanitize=address  \
 
 NAME   =    libclib.a
 DIRS   =    source/memory                           \

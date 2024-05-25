@@ -42,11 +42,11 @@ t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **
 
 void shell_init(t_allocator *allocator, t_shell *self)
 {
-	shell_prompt_init(allocator, self->sh_prompt, "home/pollivie");
-	shell_input_init(allocator, self->sh_input, self->sh_prompt->prompt);
-	// shell_lexer_init(allocator, self->sh_lexer);
+	shell_prompt_init(allocator, self->sh_prompt, shell_env_get(self->sh_env, "PWD"));
+	shell_input_init(allocator, self->sh_input, shell_prompt_get(self->sh_prompt));
+	shell_tokenizer_init(allocator, self->sh_tokenizer, shell_input_get(self->sh_input), " &|<>;$=");
+	shell_lexer_init(allocator, self->sh_lexer, shell_tokenizer_get(self->sh_tokenizer));
 	// shell_linker_init(allocator, self->sh_linker);
-	// shell_tokenizer_init(allocator, self->sh_tokenizer);
 	// builtin_cd_init(allocator, self->blt_cd);
 	// builtin_env_init(allocator, self->blt_env);
 	// builtin_pwd_init(allocator, self->blt_pwd);
@@ -64,19 +64,17 @@ void shell_main(t_allocator *allocator, t_shell *self)
 	line = self->sh_input->line;
 	if (!line)
 		signal_set(SH_SIG_DONE);
-	else
-		print(1, "%s\n", line);
+	// print(1, "%s\n", line);
 }
 void shell_deinit(t_allocator *allocator, t_shell *self)
 {
 	assert(allocator != NULL);
 	assert(self != NULL);
-	// shell_env_deinit(allocator, self->sh_env);
-	shell_input_deinit(allocator, self->sh_input);
-	shell_lexer_deinit(allocator, self->sh_lexer);
-	shell_linker_deinit(allocator, self->sh_linker);
 	shell_prompt_deinit(allocator, self->sh_prompt);
+	shell_input_deinit(allocator, self->sh_input);
 	shell_tokenizer_deinit(allocator, self->sh_tokenizer);
+	shell_lexer_deinit(allocator, self->sh_lexer);
+	// shell_linker_deinit(allocator, self->sh_linker);
 }
 
 t_shell *shell_destroy(t_allocator *allocator, t_shell *self)
