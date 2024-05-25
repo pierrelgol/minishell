@@ -42,10 +42,10 @@ t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **
 void shell_init(t_allocator *allocator, t_shell *self)
 {
 	shell_env_init(allocator, self->sh_env);
-	shell_input_init(allocator, self->sh_input);
+	shell_prompt_init(allocator, self->sh_prompt, getenv("PWD"));
+	shell_input_init(allocator, self->sh_input, self->sh_prompt->prompt);
 	shell_lexer_init(allocator, self->sh_lexer);
 	shell_linker_init(allocator, self->sh_linker);
-	shell_prompt_init(allocator, self->sh_prompt);
 	shell_tokenizer_init(allocator, self->sh_tokenizer);
 	// builtin_cd_init(allocator, self->blt_cd);
 	// builtin_env_init(allocator, self->blt_env);
@@ -58,8 +58,13 @@ void shell_init(t_allocator *allocator, t_shell *self)
 
 void shell_main(t_allocator *allocator, t_shell *self)
 {
-	(void) allocator;
-	(void) self;
+	char *line;
+
+	line = self->sh_input->line;
+	if (!line)
+		signal_set(SH_SIG_DONE);
+	else
+		print(1, "%s\n", line);
 }
 void shell_deinit(t_allocator *allocator, t_shell *self)
 {

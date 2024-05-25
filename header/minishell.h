@@ -14,6 +14,10 @@
 #define MINISHELL_H
 
 #include "clib.h"
+#include <readline/history.h>
+#include <readline/readline.h>
+
+extern int64_t g_signal;
 
 typedef struct s_token_payload   t_token_payload;
 typedef struct s_token_iterator  t_token_iterator;
@@ -33,9 +37,12 @@ typedef struct s_builtin_unset   t_builtin_unset;
 typedef struct s_builtin_pwd     t_builtin_pwd;
 typedef struct s_builtin_exit    t_builtin_exit;
 
-#define SIG_STOP 9
-#define SIG_INIT 0
-#define SIG_DEINIT 1
+int64_t signal_get(void);
+void    signal_set(int64_t signal);
+
+#define SH_SIG_DONE 0
+#define SH_SIG_WORK 1
+#define SH_SIG_ERRO 2
 
 #ifndef DEBUG
 #define DEBUG 1
@@ -166,20 +173,23 @@ t_shell_env *shell_env_destroy(t_allocator *allocator, t_shell_env *self);
 struct s_shell_input
 {
 	t_allocator *allocator;
+	char        *prompt;
+	char        *line;
 };
 
 t_shell_input *shell_input_create(t_allocator *allocator);
-void           shell_input_init(t_allocator *allocator, t_shell_input *self);
+void shell_input_init(t_allocator *allocator, t_shell_input *self, char *prompt);
 void           shell_input_deinit(t_allocator *allocator, t_shell_input *self);
 t_shell_input *shell_input_destroy(t_allocator *allocator, t_shell_input *self);
 
 struct s_shell_prompt
 {
 	t_allocator *allocator;
+	char        *prompt;
 };
 
 t_shell_prompt *shell_prompt_create(t_allocator *allocator);
-void            shell_prompt_init(t_allocator *allocator, t_shell_prompt *self);
+void shell_prompt_init(t_allocator *allocator, t_shell_prompt *self, char *pwd);
 void shell_prompt_deinit(t_allocator *allocator, t_shell_prompt *self);
 t_shell_prompt *shell_prompt_destroy(t_allocator *allocator, t_shell_prompt *self);
 

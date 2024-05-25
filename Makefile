@@ -36,7 +36,7 @@ OBJS = $(SRCS:.c=.o)
 all: $(EXE_NAME)
 
 $(EXE_NAME): $(OBJS) $(LIB_NAME)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lclib
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lclib -lreadline
 
 $(LIB_NAME):
 	make -C $(LIBRARY_DIR)
