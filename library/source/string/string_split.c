@@ -28,6 +28,8 @@ char **string_split_scalar(t_allocator *const allocator, const char *source, con
 			result[i++] = string_nclone(allocator, &source[j++], 1);
 		if (source[j])
 			result[i++] = string_clone_until_scalar(allocator, &source[j], scalar);
+		else
+			break;
 		while (source[j] && source[j] != scalar)
 			++j;
 	}
@@ -51,6 +53,8 @@ char **string_split_any(t_allocator *const allocator, const char *source, t_bits
 			result[i++] = string_nclone(allocator, &source[j++], 1);
 		if (source[j])
 			result[i++] = string_clone_until_any(allocator, &source[j], delimiters);
+		else
+			break;
 		while (source[j] && !bitset_is_set(delimiters, source[j]))
 			++j;
 	}
@@ -75,6 +79,8 @@ char **string_split_none(t_allocator *const allocator, const char *source, t_bit
 			result[i++] = string_nclone(allocator, &source[j++], 1);
 		if (source[j])
 			result[i++] = string_clone_until_none(allocator, &source[j], delimiters);
+		else
+			break;
 		while (source[j] && bitset_is_set(delimiters, source[j]))
 			++j;
 	}
@@ -99,6 +105,8 @@ char **string_split_predicate(t_allocator *const allocator, const char *source, 
 			result[i++] = string_nclone(allocator, &source[j++], 1);
 		if (source[j])
 			result[i++] = string_clone_until_predicate(allocator, &source[j], predicate);
+		else
+			break;
 		while (source[j] && !predicate(source[j]))
 			++j;
 	}

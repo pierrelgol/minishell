@@ -69,6 +69,62 @@ void    signal_set(int64_t signal);
 typedef enum e_token_kind
 {
 	KIND_NO_KIND,
+	KIND_KW,
+	KIND_ARG,
+	KIND_SPC,
+
+	KIND_MAYBE_PATH,
+	KIND_OK_PATH,
+	KIND_ERR_PATH,
+
+	KIND_MAYBE_CMD,
+	KIND_OK_CMD,
+	KIND_ERR_CMD,
+
+	KIND_MAYBE_FILE,
+	KIND_OK_FILE,
+	KIND_ERR_FILE,
+
+	KIND_MAYBE_BLTN,
+	KIND_OK_BLTN,
+	KIND_ERR_BLTN,
+
+	KIND_APPEND,
+	KIND_HEREDOC,
+	KIND_ERR,
+
+	KIND_TILDE,
+	KIND_AT,
+	KIND_NOT,
+	KIND_HASH,
+	KIND_DOLLAR,
+	KIND_MODULO,
+	KIND_CARET,
+	KIND_AND,
+	KIND_STAR,
+	KIND_OPAR,
+	KIND_CPAR,
+	KIND_DASH,
+	KIND_PLUS,
+	KIND_MINUS,
+	KIND_EQL,
+	KIND_OBRACK,
+	KIND_CBRACK,
+	KIND_OCURL,
+	KIND_CCURL,
+	KIND_OR,
+	KIND_SLASH,
+	KIND_BACKSLASH,
+	KIND_QMARK,
+	KIND_SCOLON,
+	KIND_COLON,
+	KIND_DQUOTE,
+	KIND_QUOTES,
+	KIND_DOT,
+	KIND_COMMA,
+	KIND_RRDIR,
+	KIND_LRDIR,
+
 } t_token_kind;
 
 struct s_token_payload
@@ -126,6 +182,7 @@ t_token *token_create(t_allocator *allocator);
 void     token_init(t_allocator *allocator, t_token *self, char *str);
 void     token_deinit(t_allocator *allocator, t_token *self);
 void     token_print(t_token *self);
+void     token_print_kind(t_token *self);
 t_token *token_destroy(t_allocator *allocator, t_token *self);
 
 struct s_shell
@@ -178,6 +235,7 @@ struct s_shell_lexer
 
 t_shell_lexer *shell_lexer_create(t_allocator *allocator);
 void shell_lexer_init(t_allocator *allocator, t_shell_lexer *self, char **tokenized);
+void shell_lexer_lex(t_allocator *allocator, t_shell_lexer *self);
 t_token_buffer *shell_lexer_get(t_shell_lexer *self);
 void            shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self);
 t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self);

@@ -44,7 +44,7 @@ void shell_init(t_allocator *allocator, t_shell *self)
 {
 	shell_prompt_init(allocator, self->sh_prompt, shell_env_get(self->sh_env, "PWD"));
 	shell_input_init(allocator, self->sh_input, shell_prompt_get(self->sh_prompt));
-	shell_tokenizer_init(allocator, self->sh_tokenizer, shell_input_get(self->sh_input), " &|<>;$=");
+	shell_tokenizer_init(allocator, self->sh_tokenizer, shell_input_get(self->sh_input), " &|<>;$=~!@#$%^&*()_+}{|\":?><\'}");
 	shell_lexer_init(allocator, self->sh_lexer, shell_tokenizer_get(self->sh_tokenizer));
 	// shell_linker_init(allocator, self->sh_linker);
 	// builtin_cd_init(allocator, self->blt_cd);
