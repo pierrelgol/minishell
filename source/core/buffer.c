@@ -249,6 +249,7 @@ void token_buffer_deinit(t_allocator *allocator, t_token_buffer *self)
 		print(1, "\n");
 	self->count = 0;
 	self->index = 0;
+	vector_clear(self->tokens);
 }
 
 void buffer_print(t_token_buffer *self)
