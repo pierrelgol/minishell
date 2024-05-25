@@ -1,25 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_destroy.c                                   :+:      :+:    :+:   */
+/*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:31:46 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:31:46 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/25 12:32:01 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/25 12:32:02 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/minishell.h"
 
-t_vector	*vector_destroy(t_vector *vector)
+void _minishell_expect(bool condition, char *function)
 {
-	t_allocator *allocator;
+	if (!condition)
+		print(2, "[WARN] | Assertion failed in : %s\n", function);
+}
 
-	clib_assert(vector != NULL);
-	allocator = vector->allocator;
-	clib_assert(allocator != NULL);
-	allocator->destroy(allocator, vector->data);
-	allocator->destroy(allocator, vector);
-	return (NULL);
+void _minishell_assert(bool condition, char *function)
+{
+	if (!condition)
+	{
+		print(2, "[ERR] | Assertion failed in : %s\n", function);		
+		abort();
+	}
 }

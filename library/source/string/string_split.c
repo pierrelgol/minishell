@@ -33,8 +33,10 @@ char	**string_split_scalar(t_allocator *const allocator, const char *source,
 			result[i++] = string_clone_scalar(allocator, source[j++]);
 		if (source[j])
 			result[i] = string_substring_scalar(allocator, &source[j], scalar);
-		j += string_length(result[i++]);
+		j += string_length(result[i]);
+		i += 1;
 	}
+	result[i] = NULL;
 	return (result);
 }
 
@@ -59,8 +61,10 @@ char	**string_split_any(t_allocator *const allocator, const char *source,
 			result[i++] = string_clone_scalar(allocator, source[j++]);
 		if (source[j])
 			result[i] = string_substring_any(allocator, &source[j], delimiters);
-		j += string_length(result[i++]);
+		j += string_length(result[i]);
+		i += 1;
 	}
+	result[i] = NULL;
 	return (result);
 }
 

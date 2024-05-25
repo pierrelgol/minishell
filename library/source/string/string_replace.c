@@ -25,7 +25,7 @@ char	*string_replace_scalar(t_allocator *const allocator, const char *source,
 	while (result[i])
 	{
 		if (result[i] == scalar)
-			result[i] = (char)with;
+			result[i] = with;
 		++i;
 	}
 	return (result);
@@ -44,7 +44,7 @@ char	*string_replace_any(t_allocator *const allocator, const char *source,
 	while (result[i])
 	{
 		if (bitset_is_set(delimiters, result[i]))
-			result[i] = (char)with;
+			result[i] = with;
 		++i;
 	}
 	return (result);
@@ -63,7 +63,7 @@ char	*string_replace_none(t_allocator *const allocator, const char *source,
 	while (result[i])
 	{
 		if (!bitset_is_set(delimiters, result[i]))
-			result[i] = (char)with;
+			result[i] = with;
 		++i;
 	}
 	return (result);
@@ -82,7 +82,7 @@ char	*string_replace_predicate(t_allocator *const allocator,
 	while (result[i])
 	{
 		if (predicate(result[i]))
-			result[i] = (char)with;
+			result[i] = with;
 		++i;
 	}
 	return (result);

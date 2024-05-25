@@ -11,38 +11,32 @@
 # **************************************************************************** #
 
 CC = clang
-CFLAGS = -Wall \
-         -Wextra \
-         -O0 \
-         -g3 \
-         -fno-omit-frame-pointer \
-         -fsanitize=undefined \
-         -fsanitize=address \
-         -ggdb \
-         -Wconversion \
-         -Wdouble-promotion \
-         -Wno-unused-parameter \
-         -Wno-unused-function \
-         -Wno-sign-conversion \
-         -fsanitize=undefined \
-         -fsanitize-trap
+CFLAGS = -Wall                              \
+         -Wextra                            \
+         -g3                                \
+         -fno-omit-frame-pointer            
 
 LIBRARY_DIR = ./library
 LIB_NAME = $(LIBRARY_DIR)/libclib.a
 
+EXE_HEADER_DIR = ./header
+EXE_SOURCE_DIR = source/.                   \
+                 source/core                \
+                 source/builtin             \
+                 source/parsing             \
+                 source/executor            \
+                 source/utils               
 EXE_NAME = minishell
-EXE_HEADER_DIR = header
-EXE_SOURCE_DIRS = ./source
 
-SRCS = $(foreach dir,$(EXE_SOURCE_DIRS),$(wildcard $(dir)/*.c))
-OBJS = $(SRCS:%.c=%.o)
+SRCS = $(foreach dir,$(EXE_SOURCE_DIR),$(wildcard $(dir)/*.c))
+OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean fclean re
 
 all: $(EXE_NAME)
 
 $(EXE_NAME): $(OBJS) $(LIB_NAME)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lclib -lreadline
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lclib
 
 $(LIB_NAME):
 	make -C $(LIBRARY_DIR)
@@ -56,3 +50,4 @@ fclean: clean
 	make -C $(LIBRARY_DIR) fclean
 
 re: fclean all
+	

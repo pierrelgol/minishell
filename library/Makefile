@@ -14,22 +14,14 @@
 CC     =  clang
 RM     =  rm -f
 CFLAGS = -Wall                              \
+ 		 -Werror                            \
  		 -Wextra                            \
- 		 -O0                                \
  		 -g3                                \
- 		 -fno-omit-frame-pointer            \
- 		 -fsanitize=undefined               \
- 		 -fsanitize=address                 \
- 		 -ggdb                              \
- 		 -Wall                              \
- 		 -Wextra                            \
- 		 -Wconversion                       \
- 		 -Wdouble-promotion                 \
-         -Wno-unused-parameter              \
-         -Wno-unused-function               \
-         -Wno-sign-conversion               \
-         -fsanitize=undefined               \
-         -fsanitize-trap                    \
+
+#  		 -fno-omit-frame-pointer            \
+# 	     -fsanitize=undefined                     \
+#          -fsanitize=memory                     \
+# CFLAGS = -O3
 
 
 # CFLAGS =   -Wall                                    \
@@ -37,7 +29,6 @@ CFLAGS = -Wall                              \
 #            -Wextra                                  \
 #            -g3                                      \
 #            -fno-omit-frame-pointer                  \
-#            -fsanitize=undefined                     \
 #            -O0
 
 NAME   =    libclib.a
@@ -54,6 +45,7 @@ DIRS   =    source/memory                           \
             source/table                            \
             source/bitset                           \
             source/print                            \
+            source/misc                             \
 
 SRCS := $(foreach dir,$(DIRS),$(wildcard ./$(dir)/*.c))
 OBJS := $(SRCS:.c=.o)

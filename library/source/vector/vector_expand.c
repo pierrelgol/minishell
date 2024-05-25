@@ -1,28 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_create.c                                    :+:      :+:    :+:   */
+/*   vector_expand.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:09:33 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:09:33 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/24 18:43:53 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/24 18:43:54 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
+#include <string.h>
 
-t_vector	*vector_create(t_allocator *allocator)
+t_vector *vector_expand(t_vector *vector, uint64_t at)
 {
-	t_vector	*vector;
+	uint64_t bytes_to_move;
 
-	clib_assert(allocator != NULL);
-	vector = allocator->create(allocator, sizeof(t_vector));
-	clib_assert(vector != NULL);
-	vector->allocator = allocator;
-	vector->capacity = DEFAULT_VECTOR_CAPACITY;
-	vector->count = 0;
-	vector->data = allocator->create(allocator, vector->capacity * sizeof(uintptr_t));
-	clib_assert(vector->data != NULL);
+	clib_assert(at <= vector->count);
+	bytes_to_move = (vector->count - at) * sizeof(uintptr_t);
+	memory_move(&vector->data[at + 1], &vector->data[at], bytes_to_move);
 	return (vector);
 }

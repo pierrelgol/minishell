@@ -1,28 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_create.c                                    :+:      :+:    :+:   */
+/*   vector_copy.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:09:33 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:09:33 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/24 19:28:52 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/24 19:28:53 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
 
-t_vector	*vector_create(t_allocator *allocator)
+bool vector_copy_from(t_vector *vector, uint64_t offset, uintptr_t *src, uint64_t srcsize)
 {
-	t_vector	*vector;
+	uint64_t	i;
 
-	clib_assert(allocator != NULL);
-	vector = allocator->create(allocator, sizeof(t_vector));
 	clib_assert(vector != NULL);
-	vector->allocator = allocator;
-	vector->capacity = DEFAULT_VECTOR_CAPACITY;
-	vector->count = 0;
-	vector->data = allocator->create(allocator, vector->capacity * sizeof(uintptr_t));
-	clib_assert(vector->data != NULL);
-	return (vector);
+	clib_assert(src != NULL);
+	clib_assert(offset + vector->count < vector->capacity);
+	i = 0;
+	while (i < srcsize)
+	{
+		if (vector_insert_at(vector, src[i], i + offset))
+			return (false);
+		++i;
+	}
+	return (true);
+}
+
+bool vector_copy(t_vector *vector, uintptr_t *src, uint64_t srcsize)
+{
+	return (vector_copy_from(vector, 0, src, srcsize));
 }

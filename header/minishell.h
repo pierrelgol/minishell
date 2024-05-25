@@ -14,220 +14,232 @@
 #define MINISHELL_H
 
 #include "clib.h"
-#include <readline/history.h>
-#include <readline/readline.h>
 
-typedef struct s_shell_parser    t_shell_parser;
-typedef struct s_shell_lexer     t_shell_lexer;
-typedef struct s_shell_tokenizer t_shell_tokenizer;
-typedef struct s_shell_prompt    t_shell_prompt;
-typedef struct s_shell_input     t_shell_input;
-typedef struct s_shell_env       t_shell_env;
-typedef struct s_token_iter      t_token_iter;
+typedef struct s_token_payload   t_token_payload;
+typedef struct s_token_iterator  t_token_iterator;
 typedef struct s_token           t_token;
 typedef struct s_shell           t_shell;
+typedef struct s_shell_tokenizer t_shell_tokenizer;
+typedef struct s_shell_lexer     t_shell_lexer;
+typedef struct s_shell_linker    t_shell_linker;
+typedef struct s_shell_env       t_shell_env;
+typedef struct s_shell_input     t_shell_input;
+typedef struct s_shell_prompt    t_shell_prompt;
+typedef struct s_builtin_cd      t_builtin_cd;
+typedef struct s_builtin_echo    t_builtin_echo;
+typedef struct s_builtin_env     t_builtin_env;
+typedef struct s_builtin_export  t_builtin_export;
+typedef struct s_builtin_unset   t_builtin_unset;
+typedef struct s_builtin_pwd     t_builtin_pwd;
+typedef struct s_builtin_exit    t_builtin_exit;
 
-#ifndef MAX_TOKENS
-#define MAX_TOKENS 128
+#define SIG_STOP 9
+#define SIG_INIT 0
+#define SIG_DEINIT 1
+
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
+#if DEBUG == 1
+#undef assert
+#define assert(b)                                                     \
+	do                                                            \
+	{                                                             \
+		_minishell_expect((b), (char *) __PRETTY_FUNCTION__); \
+	} while (0)
+#elif DEBUG == 2
+#define assert(b)                                                     \
+	do                                                            \
+	{                                                             \
+		_minishell_assert((b), (char *) __PRETTY_FUNCTION__); \
+	} while (0)
+#else
+#define assert(b) ((void) (b))
 #endif
 
 typedef enum e_token_kind
 {
-	KIND_NO_KIND = 0,       // No specific kind
-	KIND_END_OF_TOK,        // for the iterator to stop
-	KIND_WHITESPACE,        // WHITESPACE
-	KIND_UNKNOWN,           // Unknown token
-	KIND_KEYWORD,           // Shell keyword
-	KIND_PATH,              // File or directory path
-	KIND_FILE,              // File name
-	KIND_IDENTIFIER,        // General identifier
-	KIND_SEMI_COLON,        // Semicolon (;)
-	KIND_BUILTIN_MAYBE_ARG, // Built-in command with maybe some arguments
-	KIND_BUILTIN_NO_ARG,    // Built-in command with no arguments
-	KIND_BUILTIN_ARG,       // Built-in command with arguments
-	KIND_CMD_MAYBE_ARG,     // Command with maybe some arguments
-	KIND_CMD_NO_ARG,        // Command with no arguments
-	KIND_CMD_ARG,           // Command with arguments
-	KIND_ARG,               // General argument
-	KIND_EXPAND_VAR,        // $
-	KIND_AND,               // Logical AND (&&)
-	KIND_OR,                // Logical OR (||)
-	KIND_PIPE,              // Pipe (|)
-	KIND_LEFT_REDIR,        // Input redirection (<)
-	KIND_RIGHT_REDIR,       // Output redirection (>)
-	KIND_HEREDOC,           // Here-document (<<)
-	KIND_APPEND,            // Output redirection with append (>>)
-	KIND_BACKGROUND,        // Background process (&)
-	KIND_SUBSHELL_START,    // Start of subshell (()
-	KIND_SUBSHELL_END,      // End of subshell ())
-	KIND_COMMENT,           // Comment (#)
-	KIND_ASSIGNMENT,        // Variable assignment (=)
-	KIND_NEWLINE            // Newline (\n)
+	KIND_NO_KIND,
 } t_token_kind;
 
-// @TODO
-t_vector *token_vector_create(t_allocator *allocator, uint64_t size);
-t_vector *token_vector_clear(t_allocator *allocator, t_vector *vector);
-t_vector *token_vector_destroy(t_allocator *allocator, t_vector *vector);
+struct s_token_payload
+{
+	t_allocator *allocator;
+};
+
+t_token_payload *token_payload_create(t_allocator *allocator);
+void token_payload_init(t_allocator *allocator, t_token_payload *self);
+void token_payload_deinit(t_allocator *allocator, t_token_payload *self);
+t_token_payload *token_payload_destroy(t_allocator *allocator, t_token_payload *self);
+
+struct s_token_iterator
+{
+	t_allocator *allocator;
+};
+
+t_token_iterator *token_iterator_create(t_allocator *allocator);
+void token_iterator_init(t_allocator *allocator, t_token_iterator *self);
+void token_iterator_deinit(t_allocator *allocator, t_token_iterator *self);
+t_token_iterator *token_iterator_destroy(t_allocator *allocator, t_token_iterator *self);
 
 struct s_token
 {
 	t_token_kind kind;
+	uintptr_t    extra;
 	char        *str;
 	uint64_t     len;
-	uintptr_t    extra;
 };
 
 t_token *token_create(t_allocator *allocator);
-t_token *token_set_str(t_allocator *allocator, t_token *self, char *string);
-t_token *token_set_kind(t_token *self, t_token_kind kind);
-t_token *token_set_extra(t_token *self, uintptr_t extra);
-t_token *token_clear(t_allocator *allocator, t_token *self);
-bool     token_is_kind(t_token *token, t_token_kind kind);
-bool     token_contains_scalar(t_token *t1, int32_t scalar);
-bool     token_contains_any(t_token *t1, t_bitset *any);
-bool     token_starts_with_scalar(t_token *t1, int32_t scalar);
-bool     token_starts_with_any(t_token *t1, t_bitset *any);
-bool     token_ends_with_scalar(t_token *t1, int32_t scalar);
-bool     token_ends_with_any(t_token *t1, t_bitset *any);
-bool     token_is_eql_str(t_token *t1, char *str);
-bool     token_is_eql_len(t_token *t1, uint64_t len);
-bool token_is_eql_extra(t_token *t1, uint64_t extra, bool(t_cmp)(uintptr_t x1, uintptr_t x2));
-bool     token_print(t_token *tok);
-t_token *token_destroy(t_allocator *allocator, t_token *tok);
-
-struct s_token_iter
-{
-	t_allocator *allocator;
-	t_vector    *tokens;
-	uint64_t     capacity;
-	uint64_t     index;
-	uint64_t     count;
-};
-// @ TODO
-t_token_iter *iter_create(t_allocator *allocator, t_vector *tokens);
-void          iter_update_count(t_token_iter *iter);
-void          iter_reset_start(t_token_iter *iter);
-uint64_t      iter_eat(t_token_iter *iter, uint64_t n);
-t_token      *iter_match_kind(t_token_iter *iter, t_token_kind kind);
-t_token      *iter_match_str(t_token_iter *iter, char *str);
-uint64_t      iter_skip_kind(t_token_iter *iter, t_token_kind kind);
-uint64_t      iter_skip_str(t_token_iter *iter, char *str);
-t_token      *iter_peek_next(t_token_iter *iter);
-t_token      *iter_peek_curr(t_token_iter *iter);
-t_token      *iter_peek_prev(t_token_iter *iter);
-bool          iter_is_eof(t_token_iter *iter);
-t_token_iter *iter_destroy(t_token_iter *self);
+void     token_init(t_allocator *allocator, t_token *self);
+void     token_deinit(t_allocator *allocator, t_token *self);
+t_token *token_destroy(t_allocator *allocator, t_token *self);
 
 struct s_shell
 {
 	t_allocator       *allocator;
-	t_shell_env       *environment;
-	t_shell_prompt    *prompt;
-	t_shell_input     *input;
-	t_shell_tokenizer *tokenizer;
-	t_shell_lexer     *lexer;
-	t_shell_parser    *parser;
-	t_token_iter      *iter;
-	// @TODO
-	t_vector          *tokens;
-	char              *line;
+	int32_t            argc;
+	char             **argv;
+	char             **envp;
+	t_builtin_cd      *blt_cd;
+	t_builtin_echo    *blt_echo;
+	t_builtin_env     *blt_env;
+	t_builtin_export  *blt_export;
+	t_builtin_unset   *blt_unset;
+	t_builtin_pwd     *blt_pwd;
+	t_builtin_exit    *blt_exit;
+	t_shell_env       *sh_env;
+	t_shell_prompt    *sh_prompt;
+	t_shell_input     *sh_input;
+	t_shell_tokenizer *sh_tokenizer;
+	t_shell_lexer     *sh_lexer;
+	t_shell_linker    *sh_linker;
 };
 
 t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **envp);
-void     shell_run(t_shell *shell);
-void     shell_clear(t_shell *shell);
-t_shell *shell_destroy(t_shell *shell);
+void     shell_init(t_allocator *allocator, t_shell *self);
+void     shell_main(t_allocator *allocator, t_shell *self);
+void     shell_deinit(t_allocator *allocator, t_shell *self);
+t_shell *shell_destroy(t_allocator *allocator, t_shell *self);
+
+struct s_shell_tokenizer
+{
+	t_allocator *allocator;
+};
+
+t_shell_tokenizer *shell_tokenizer_create(t_allocator *allocator);
+void shell_tokenizer_init(t_allocator *allocator, t_shell_tokenizer *self);
+void shell_tokenizer_deinit(t_allocator *allocator, t_shell_tokenizer *self);
+t_shell_tokenizer *shell_tokenizer_destroy(t_allocator *allocator, t_shell_tokenizer *self);
+
+struct s_shell_lexer
+{
+	t_allocator *allocator;
+};
+
+t_shell_lexer *shell_lexer_create(t_allocator *allocator);
+void           shell_lexer_init(t_allocator *allocator, t_shell_lexer *self);
+void           shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self);
+t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self);
+
+struct s_shell_linker
+{
+	t_allocator *allocator;
+};
+
+t_shell_linker *shell_linker_create(t_allocator *allocator);
+void            shell_linker_init(t_allocator *allocator, t_shell_linker *self);
+void shell_linker_deinit(t_allocator *allocator, t_shell_linker *self);
+t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *self);
 
 struct s_shell_env
 {
 	t_allocator *allocator;
-	t_table     *variables;
-	t_list      *keys;
-	t_list      *protected_keys;
-	int32_t      argc;
-	char       **argv;
-	char       **envp;
 };
 
-t_shell_env *shell_env_create(t_allocator *allocator, int32_t argc, char **argv, char **envp);
-void env_init_default(t_shell_env *env, t_allocator *allocator, t_table *variables, char **envp);
-void env_init_customs(t_shell_env *env, t_allocator *allocator, t_table *variables, char **envp);
-bool         env_contains(t_shell_env *env, char *key);
-bool         env_protected_remove(t_shell_env *env, char *key);
-bool         env_remove(t_shell_env *env, char *key);
-char        *env_get(t_shell_env *env, char *key);
-char        *env_protected_get(t_shell_env *env, char *key, char *def);
-bool         env_protected_put(t_shell_env *env, char *key, char *value);
-bool         env_put(t_shell_env *env, char *key, char *value);
-int32_t      key_compare(uintptr_t k1, uintptr_t k2);
-bool         env_print_one(t_shell_env *env, char *key);
-bool         env_print_all(t_shell_env *env, bool sort);
-t_shell_env *shell_env_destroy(t_shell_env *env);
+t_shell_env *shell_env_create(t_allocator *allocator);
+void         shell_env_init(t_allocator *allocator, t_shell_env *self);
+void         shell_env_deinit(t_allocator *allocator, t_shell_env *self);
+t_shell_env *shell_env_destroy(t_allocator *allocator, t_shell_env *self);
+
+struct s_shell_input
+{
+	t_allocator *allocator;
+};
+
+t_shell_input *shell_input_create(t_allocator *allocator);
+void           shell_input_init(t_allocator *allocator, t_shell_input *self);
+void           shell_input_deinit(t_allocator *allocator, t_shell_input *self);
+t_shell_input *shell_input_destroy(t_allocator *allocator, t_shell_input *self);
 
 struct s_shell_prompt
 {
 	t_allocator *allocator;
-	t_shell_env *env;
-	char        *prompt;
-	char        *path;
-	char        *symbol;
-	char        *color;
 };
 
-t_shell_prompt *shell_prompt_create(t_allocator *allocator, t_shell_env *env);
-void            prompt_build(t_shell_prompt *prompt);
-char           *prompt_get(t_shell_prompt *prompt);
-void            prompt_clear(t_shell_prompt *prompt);
-t_shell_prompt *shell_prompt_destroy(t_shell_prompt *prompt);
+t_shell_prompt *shell_prompt_create(t_allocator *allocator);
+void            shell_prompt_init(t_allocator *allocator, t_shell_prompt *self);
+void shell_prompt_deinit(t_allocator *allocator, t_shell_prompt *self);
+t_shell_prompt *shell_prompt_destroy(t_allocator *allocator, t_shell_prompt *self);
 
-struct s_shell_input
+struct s_builtin_cd
 {
-	t_shell_prompt *prompt;
-	t_allocator    *allocator;
-	char           *line;
-	int64_t         signal;
+	t_allocator *allocator;
 };
 
-t_shell_input *shell_input_create(t_allocator *allocator, t_shell_prompt *prompt);
-char          *input_get(t_shell_input *input);
-void           input_clear(t_shell_input *input);
-t_shell_input *shell_input_destroy(t_shell_input *input);
+t_builtin_cd *builtin_cd_create(t_allocator *allocator);
+t_builtin_cd *builtin_cd_destroy(t_allocator *allocator, t_builtin_cd *self);
 
-struct s_shell_tokenizer
+struct s_builtin_echo
 {
-	t_allocator  *allocator;
-	t_bitset      delimiters;
-	char         *input;
-	t_token_iter *output;
+	t_allocator *allocator;
 };
 
-t_shell_tokenizer *shell_tokenizer_create(t_allocator *allocator, t_token_iter *iter);
-t_token_iter *tokenizer_tokenize(t_shell_tokenizer *tokenizer, char *input, char *delimiters);
-void               tokenizer_clear(t_shell_tokenizer *tokenizer);
-t_shell_tokenizer *shell_tokenizer_destroy(t_shell_tokenizer *tokenizer);
+t_builtin_echo *builtin_echo_create(t_allocator *allocator);
+t_builtin_echo *builtin_echo_destroy(t_allocator *allocator, t_builtin_echo *self);
 
-struct s_shell_lexer
+struct s_builtin_env
 {
-	t_allocator  *allocator;
-	t_token_iter *output;
+	t_allocator *allocator;
 };
 
-t_shell_lexer *shell_lexer_create(t_allocator *allocator, t_token_iter *iter);
-t_token_iter  *lexer_lex(t_shell_lexer *lexer);
-void           lexer_clear(t_shell_lexer *lexer);
-t_shell_lexer *shell_lexer_destroy(t_shell_lexer *lexer);
+t_builtin_env *builtin_env_create(t_allocator *allocator);
+t_builtin_env *builtin_env_destroy(t_allocator *allocator, t_builtin_env *self);
 
-struct s_shell_parser
+struct s_builtin_export
 {
-	t_allocator  *allocator;
-	t_token_iter *output;
+	t_allocator *allocator;
 };
 
-t_shell_parser *shell_parser_create(t_allocator *allocator, t_token_iter *iter);
-void           parser_clear(t_shell_parser *parser);
-t_shell_parser *shell_parser_destroy(t_shell_parser *parser);
+t_builtin_export *builtin_export_create(t_allocator *allocator);
+t_builtin_export *builtin_export_destroy(t_allocator *allocator, t_builtin_export *self);
 
-char **allocator_destroy_split(t_allocator *allocator, char **split);
+struct s_builtin_unset
+{
+	t_allocator *allocator;
+};
+
+t_builtin_unset *builtin_unset_create(t_allocator *allocator);
+t_builtin_unset *builtin_unset_destroy(t_allocator *allocator, t_builtin_unset *self);
+
+struct s_builtin_pwd
+{
+	t_allocator *allocator;
+};
+
+t_builtin_pwd *builtin_pwd_create(t_allocator *allocator);
+t_builtin_pwd *builtin_pwd_destroy(t_allocator *allocator, t_builtin_pwd *self);
+
+struct s_builtin_exit
+{
+	t_allocator *allocator;
+};
+
+t_builtin_exit *builtin_exit_create(t_allocator *allocator);
+t_builtin_exit *builtin_exit_destroy(t_allocator *allocator, t_builtin_exit *self);
+
+void _minishell_assert(bool condition, char *function);
+void _minishell_expect(bool condition, char *function);
 
 #endif

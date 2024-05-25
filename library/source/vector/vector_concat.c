@@ -1,28 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_create.c                                    :+:      :+:    :+:   */
+/*   vector_concat.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:09:33 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:09:33 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/24 19:40:38 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/24 19:40:38 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
 
-t_vector	*vector_create(t_allocator *allocator)
+t_vector *vector_concat(t_vector *dest, t_vector *src)
 {
-	t_vector	*vector;
-
-	clib_assert(allocator != NULL);
-	vector = allocator->create(allocator, sizeof(t_vector));
-	clib_assert(vector != NULL);
-	vector->allocator = allocator;
-	vector->capacity = DEFAULT_VECTOR_CAPACITY;
-	vector->count = 0;
-	vector->data = allocator->create(allocator, vector->capacity * sizeof(uintptr_t));
-	clib_assert(vector->data != NULL);
-	return (vector);
+	uint64_t i;
+	clib_assert(dest != NULL);
+	clib_assert(src != NULL);
+	i = 0;
+	while (vector_end_of_vec(src, i))
+		vector_insert_back(dest, vector_peek_at(src, i++));
+	return (dest);
 }
