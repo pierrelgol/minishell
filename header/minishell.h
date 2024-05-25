@@ -21,7 +21,7 @@
 extern int64_t g_signal;
 
 typedef struct s_token_payload   t_token_payload;
-typedef struct s_token_iterator  t_token_iterator;
+typedef struct s_token_buffer    t_token_buffer;
 typedef struct s_token           t_token;
 typedef struct s_shell           t_shell;
 typedef struct s_shell_tokenizer t_shell_tokenizer;
@@ -81,15 +81,37 @@ void token_payload_init(t_allocator *allocator, t_token_payload *self);
 void token_payload_deinit(t_allocator *allocator, t_token_payload *self);
 t_token_payload *token_payload_destroy(t_allocator *allocator, t_token_payload *self);
 
-struct s_token_iterator
+struct s_token_buffer
 {
 	t_allocator *allocator;
+	t_vector    *tokens;
+	uint64_t      index;
+	uint64_t      count;
 };
 
-t_token_iterator *token_iterator_create(t_allocator *allocator);
-void token_iterator_init(t_allocator *allocator, t_token_iterator *self);
-void token_iterator_deinit(t_allocator *allocator, t_token_iterator *self);
-t_token_iterator *token_iterator_destroy(t_allocator *allocator, t_token_iterator *self);
+t_token_buffer *token_buffer_create(t_allocator *allocator);
+void token_buffer_init(t_allocator *allocator, t_token_buffer *self, char **tokenized);
+
+t_token *token_buffer_get_at(t_token_buffer *self, uint64_t index);
+t_token *token_buffer_remove_at(t_token_buffer *self, uint64_t index);
+void	token_buffer_push(t_token_buffer *self, t_token *token);
+t_token *token_buffer_pop(t_token_buffer *self);
+bool token_buffer_insert_at(t_token_buffer *self, t_token *token, uint64_t index);
+bool     token_buffer_is_empty(t_token_buffer *self);
+uint64_t token_buffer_kill(t_token_buffer *self, uint64_t n);
+uint64_t token_buffer_eats(t_token_buffer *self, uint64_t n);
+uint64_t token_buffer_skip_kind(t_token_buffer *self, t_token_kind kind);
+uint64_t token_buffer_skip_string(t_token_buffer *self, char *str);
+t_token *token_buffer_match_kind(t_token_buffer *self, t_token_kind kind, uint64_t n);
+t_token *token_buffer_match_string(t_token_buffer *self, char *str, uint64_t n);
+t_token *token_buffer_peek_curr(t_token_buffer *self);
+t_token *token_buffer_peek_next(t_token_buffer *self);
+t_token *token_buffer_peek_prev(t_token_buffer *self);
+uint64_t token_buffer_get_curr_index(t_token_buffer *buffer);
+bool     token_buffer_end_of_buffer(t_token_buffer *self, uint64_t i);
+
+void token_buffer_deinit(t_allocator *allocator, t_token_buffer *self);
+t_token_buffer *token_buffer_destroy(t_allocator *allocator, t_token_buffer *self);
 
 struct s_token
 {
@@ -100,7 +122,7 @@ struct s_token
 };
 
 t_token *token_create(t_allocator *allocator);
-void     token_init(t_allocator *allocator, t_token *self);
+void     token_init(t_allocator *allocator, t_token *self, char *str);
 void     token_deinit(t_allocator *allocator, t_token *self);
 t_token *token_destroy(t_allocator *allocator, t_token *self);
 

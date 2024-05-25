@@ -86,7 +86,6 @@ bool shell_env_set(t_shell_env *self, char *key, char *value)
 {
 	char *copied_key;
 	char *copied_value;
-	char *temp;
 
 	if (!shell_env_get(self, key))
 	{
