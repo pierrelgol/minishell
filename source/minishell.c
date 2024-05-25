@@ -29,6 +29,7 @@ int main(int argc, char **argv, char **envp)
 		{
 			shell_init(allocator, shell);
 			shell_main(allocator, shell);
+			// shell_env_print_all(shell->sh_env);
 			shell_deinit(allocator, shell);
 		}
 	}
