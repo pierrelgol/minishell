@@ -37,6 +37,7 @@ void shell_input_init(t_allocator *allocator, t_shell_input *self, char *prompt)
 	else
 	{
 		self->line = allocator->dupz(allocator, temp, string_length(temp));
+		assert(self->line != NULL);
 		free(temp);
 	}
 }

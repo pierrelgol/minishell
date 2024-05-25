@@ -17,6 +17,7 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 
+#define DEBUG_LINE "echo \"Hello World\";"
 extern int64_t g_signal;
 
 typedef struct s_token_payload   t_token_payload;
@@ -163,11 +164,20 @@ t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *sel
 struct s_shell_env
 {
 	t_allocator *allocator;
+	char       **envp;
+	t_table     *vars;
+	t_vector    *keys;
+	t_vector    *value;
 };
 
 t_shell_env *shell_env_create(t_allocator *allocator);
-void         shell_env_init(t_allocator *allocator, t_shell_env *self);
-void         shell_env_deinit(t_allocator *allocator, t_shell_env *self);
+void  shell_env_init(t_allocator *allocator, t_shell_env *self, char **envp);
+bool  shell_env_del(t_shell_env *self, char *key);
+char *shell_env_get(t_shell_env *self, char *key);
+bool  shell_env_set(t_shell_env *self, char *key, char *value);
+void  shell_env_print_one(t_shell_env *self, char *key);
+void  shell_env_print_all(t_shell_env *self);
+void  shell_env_deinit(t_allocator *allocator, t_shell_env *self);
 t_shell_env *shell_env_destroy(t_allocator *allocator, t_shell_env *self);
 
 struct s_shell_input
@@ -252,4 +262,7 @@ t_builtin_exit *builtin_exit_destroy(t_allocator *allocator, t_builtin_exit *sel
 void _minishell_assert(bool condition, char *function);
 void _minishell_expect(bool condition, char *function);
 
+// misc
+bool from_string_to_key_value_pair(t_allocator *allocator, char *source, char **key, char **value);
+int32_t key_compare(uintptr_t k1, uintptr_t k2);
 #endif
