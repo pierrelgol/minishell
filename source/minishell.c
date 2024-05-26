@@ -23,15 +23,13 @@ int main(int argc, char **argv, char **envp)
 	init_exceptions(argv[0]);
 	allocator = gpa_init();
 	shell = shell_create(allocator, argc, argv, envp);
-	if (argc == 1)
+	while (signal_get() != SH_SIG_DONE)
 	{
-		while (signal_get() != SH_SIG_DONE)
-		{
-			shell_init(allocator, shell);
-			shell_main(allocator, shell);
-			// shell_env_print_all(shell->sh_env);
-			shell_deinit(allocator, shell);
-		}
+		shell_init(allocator, shell);
+		shell_main(allocator, shell);
+		shell_deinit(allocator, shell);
 	}
+	shell = shell_destroy(allocator, shell);
+	allocator = gpa_deinit(allocator);
 	return (0);
 }

@@ -11,3 +11,12 @@
 /* ************************************************************************** */
 
 #include "../../header/minishell.h"
+
+char *direct_io(t_shell *shell)
+{
+	static int i = 1;
+
+	if (i < shell->argc)
+		return (shell->argv[i++]);
+	return (NULL);
+}

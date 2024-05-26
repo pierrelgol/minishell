@@ -12,7 +12,7 @@
 
 #include "../../header/minishell.h"
 
-t_shell_input *shell_input_create(t_allocator *allocator)
+t_shell_input *shell_input_create(t_allocator *allocator, t_shell *shell, t_shell_prompt *prompt)
 {
 	t_shell_input *self;
 
@@ -20,26 +20,42 @@ t_shell_input *shell_input_create(t_allocator *allocator)
 	self = allocator->create(allocator, sizeof(*self));
 	assert(self != NULL);
 	self->allocator = allocator;
+	self->shell = shell;
+	self->prompt = prompt;
 	self->line = NULL;
 	return (self);
 }
 
-void shell_input_init(t_allocator *allocator, t_shell_input *self, char *prompt)
+void shell_input_init(t_allocator *allocator, t_shell_input *self)
 {
+	char *prompt;
 	char *temp;
 
 	assert(allocator != NULL);
 	assert(self != NULL);
-	assert(prompt != NULL);
-	temp = readline(prompt);
-	if (!temp)
-		self->line = NULL;
+	prompt = shell_prompt_get(self->prompt);
+	if (DIRECT_IO)
+		temp = direct_io(self->shell);
 	else
+	{
+		temp = readline(prompt);
+		if (!temp)
+			self->line = NULL;
+	}
+	if (temp != NULL)
 	{
 		self->line = allocator->dupz(allocator, temp, string_length(temp));
 		assert(self->line != NULL);
-		free(temp);
+		if (!DIRECT_IO)
+			free(temp);
 	}
+	else
+		self->line = NULL;
+}
+
+char *shell_input_get(t_shell_input *self)
+{
+	return (self->line);
 }
 
 void shell_input_deinit(t_allocator *allocator, t_shell_input *self)

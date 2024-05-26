@@ -80,7 +80,6 @@ char	*string_append_many_sequence(char *dest, const char **many,
 		while (sequence[k] && (i + 1) < destsize)
 			dest[i++] = (char)sequence[k++];
 		dest[i] = 0x00;
-		++j;
 	}
 	return (dest);
 }
@@ -98,7 +97,7 @@ char	*string_append_many_scalar_sequence(char *dest, const int32_t scalar,
 	while (many[j])
 	{
 		k = 0;
-		sequence = (char *)many[j++];
+		sequence = (char *)many[j];
 		if ((i + 1) < destsize)
 		{
 			dest[i++] = scalar;

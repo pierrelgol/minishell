@@ -13,23 +13,45 @@
 
 CC     =  clang
 RM     =  rm -f
-CFLAGS = -Wall                              \
- 		 -Werror                            \
- 		 -Wextra                            \
- 		 -g3                                \
-
-#  		 -fno-omit-frame-pointer            \
-# 	     -fsanitize=undefined                     \
-#          -fsanitize=memory                     \
-# CFLAGS = -O3
+CFLAGS =  -Wall                                     \
+          -Wextra                                   \
+          -g3                                       \
+          -march=native                             \
+          -mtune=native                             \
+          -fsanitize=address                        \
+          -fsanitize=undefined                      \
+          -fsanitize=integer                        \
+          -fstrict-overflow                         \
+          -Walloca                                  \
+          -Wformat=2                                \
+          -Wformat-security                         \
+          -Wnull-dereference                        \
+          -Wstack-protector                         \
+          -Wvla                                     \
+          -Wshorten-64-to-32                        \
+          -Warray-bounds                            \
+          -Warray-bounds-pointer-arithmetic         \
+          -Wimplicit-fallthrough                    \
+          -Wloop-analysis                           \
+          -Wshift-sign-overflow                     \
+          -Wswitch-enum                             \
+          -Wtautological-constant-in-range-compare  \
+          -Wcomma                                   \
+          -Wassign-enum                             \
+          -Wbad-function-cast                       \
+          -Wfloat-equal                             \
+          -Wformat-type-confusion                   \
+          -Wpointer-arith                           \
+          -Widiomatic-parentheses                   \
+          -Wunreachable-code-aggressive             \
+          -fstack-protector-all                     \
+          -fPIE                                     \
+          -fno-optimize-sibling-calls               \
 
 
 # CFLAGS =   -Wall                                    \
 #            -Wextra                                  \
-#            -Wextra                                  \
-#            -g3                                      \
-#            -fno-omit-frame-pointer                  \
-#            -O0
+#            -glldb                                   \
 
 NAME   =    libclib.a
 DIRS   =    source/memory                           \
@@ -42,10 +64,10 @@ DIRS   =    source/memory                           \
             source/stack                            \
             source/scanner                          \
             source/vector                           \
+            source/misc                             \
             source/table                            \
             source/bitset                           \
             source/print                            \
-            source/misc                             \
 
 SRCS := $(foreach dir,$(DIRS),$(wildcard ./$(dir)/*.c))
 OBJS := $(SRCS:.c=.o)

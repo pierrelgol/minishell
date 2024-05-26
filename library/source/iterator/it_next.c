@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_expand.c                                    :+:      :+:    :+:   */
+/*   it_next.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:43:53 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:43:54 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/26 14:25:17 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/26 14:25:18 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
 
-t_vector *vector_expand(t_vector *vector, uint64_t at)
+uintptr_t it_next(t_iterator *self)
 {
-	uint64_t bytes_to_move;
-
-	clib_assert(at <= vector->count);
-	bytes_to_move = (vector->count - at) * sizeof(uintptr_t);
-	memory_move(&vector->data[at + 1], &vector->data[at], bytes_to_move);
-	return (vector);
+	if (it_end(self))
+		return (0);
+	self->index += 1;
+	return (1);
 }

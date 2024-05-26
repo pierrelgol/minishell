@@ -16,7 +16,7 @@ t_bitset	bitset_init_empty(void)
 {
 	t_bitset	bitset;
 
-	memory_set(&bitset, 0x00, sizeof(t_bitset));
+	memory_set(&bitset, sizeof(t_bitset), BITSET_SIZE);
 	return (bitset);
 }
 
@@ -39,9 +39,26 @@ t_bitset	bitset_init_from_str(const char *string)
 	return (bitset);
 }
 
+t_bitset	bitset_set_bit_range(t_bitset *bitset ,const char *string)
+{
+	uint8_t		offset;
+	uint8_t		index;
+	uint64_t	*set;
+
+	while (*string)
+	{
+		index = (uint8_t)(*string);
+		offset = index % 64;
+		set = &bitset->set[index / 64];
+		*set |= (1ULL << offset);
+		string++;
+	}
+	return (*bitset);
+}
+
 t_bitset	bitset_reset(t_bitset *bitset)
 {
-	memory_set(bitset, 0x00, sizeof(t_bitset));
+	memory_set(bitset, sizeof(t_bitset), BITSET_SIZE);
 	return (*bitset);
 }
 

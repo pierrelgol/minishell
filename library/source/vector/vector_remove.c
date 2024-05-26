@@ -33,7 +33,7 @@ bool vector_remove_back(t_vector *vector)
 	return (true);
 }
 
-bool vector_remove_at(t_vector *vector, uintptr_t index)
+bool vector_remove_at(t_vector *vector, uint64_t index)
 {
 	clib_assert(vector != NULL);
 	if (vector_is_empty(vector))
@@ -41,6 +41,18 @@ bool vector_remove_at(t_vector *vector, uintptr_t index)
 	clib_assert(index < vector->count);
 	vector->data[index] = 0;
 	vector_compact(vector, index);
+	vector->count -= 1;
+	return (true);
+}
+
+bool vector_remove_after(t_vector *vector, uint64_t index)
+{
+	clib_assert(vector != NULL);
+	if (vector_is_empty(vector))
+		return (false);
+	clib_assert(index + 1 < vector->count);
+	vector->data[index + 1] = 0;
+	vector_compact(vector, index + 1);
 	vector->count -= 1;
 	return (true);
 }

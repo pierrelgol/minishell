@@ -12,10 +12,10 @@
 
 #include "../../include/clib.h"
 
-t_memory_node	*mem_node_remove_suitable(t_memory_node **head, uint64_t size)
+t_memory_node *mem_node_remove_suitable(t_memory_node **head, uint64_t size)
 {
-	t_memory_node	*prev;
-	t_memory_node	*curr;
+	t_memory_node *prev;
+	t_memory_node *curr;
 
 	if (!head || !*head || !size)
 		return (0);

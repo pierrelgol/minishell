@@ -12,6 +12,7 @@
 
 #include "../../include/clib.h"
 
+__attribute__((no_sanitize("integer")))
 uint64_t	table_hash(char *str)
 {
 	unsigned long	seed;

@@ -49,3 +49,16 @@ bool vector_insert_at(t_vector *vector, uintptr_t value, uint64_t index)
 	vector->count += 1;
 	return (true);
 }
+
+bool vector_insert_after(t_vector *vector, uintptr_t value, uint64_t index)
+{
+	if (vector_is_full(vector))
+	{
+		if (!vector_resize(vector, vector->capacity * 2))
+			return (false);
+	}
+	vector_expand(vector, index + 1);
+	vector->data[index + 1] = value;
+	vector->count += 1;
+	return (true);
+}

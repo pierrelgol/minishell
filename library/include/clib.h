@@ -6,7 +6,7 @@
 /*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 12:47:01 by pollivie          #+#    #+#             */
-/*   Updated: 2024/04/08 21:03:52 by pollivie         ###   ########.fr       */
+/*   Updated: 2024/05/26 13:47:41 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define clib_assert(b) (_clib_assert((b),(char*)__PRETTY_FUNCTION__))
+#define clib_assert(b) (_clib_assert((b), (char *) __PRETTY_FUNCTION__))
 
 #define NOTFOUND (UINT64_MAX)
 typedef struct s_allocator t_allocator;
@@ -240,6 +240,7 @@ typedef struct s_bitset
 
 void bitset_set_bit(t_bitset *bitset, const uint64_t index, const bool value);
 bool bitset_is_set(const t_bitset *bitset, const uint64_t index);
+t_bitset bitset_set_bit_range(t_bitset *bitset, const char *string);
 t_bitset bitset_init_empty(void);
 t_bitset bitset_init_from_str(const char *string);
 t_bitset bitset_reset(t_bitset *bitset);
@@ -260,6 +261,12 @@ uint64_t string_split_length(const char **split);
 uint64_t string_index_of_difference(const char *s1, const char *s2);
 uint64_t string_compute_replace_sequence_size(const char *haystack, const char *needle, const char *with);
 
+uint64_t string_compute_scalar_split_size(const char *source, const int32_t scalar);
+uint64_t string_compute_any_split_size(const char *source, t_bitset const *delimiters);
+uint64_t string_compute_none_split_size(const char *source, t_bitset const *delimiters);
+uint64_t string_compute_predicate_split_size(const char *source, bool(predicate)(int32_t ch));
+uint64_t string_compute_sequence_split_size(const char *source, const char *needle);
+
 int32_t string_compare(const char *s1, const char *s2);
 int32_t string_ncompare(const char *s1, const char *s2, const uint64_t n);
 int32_t string_casecompare(const char *s1, const char *s2);
@@ -270,6 +277,18 @@ uint64_t string_copy_until_any(char *dest, const char *src, const t_bitset *deli
 uint64_t string_copy_until_none(char *dest, const char *src, const t_bitset *delimiters, const uint64_t destsize);
 uint64_t string_copy_until_predicate(char *dest, const char *src, bool(predicate)(int32_t ch), const uint64_t destsize);
 uint64_t string_copy_until_sequence(char *dest, const char *src, const char *needle, const uint64_t destsize);
+
+bool string_is_all_scalar(const char *source, const int32_t scalar);
+bool string_is_all_any(const char *source, t_bitset const *any);
+bool string_is_all_none(const char *source, t_bitset const *none);
+bool string_is_all_predicate(const char *source, bool(predicate)(int32_t ch));
+bool string_is_all_sequence(const char *source, const char *sequence);
+
+char *string_tokenize_scalar(t_allocator *const allocator, const char *source, const int32_t scalar, const int32_t marker);
+char *string_tokenize_any(t_allocator *const allocator, const char *source, t_bitset const *delimiters, const int32_t marker);
+char *string_tokenize_none(t_allocator *const allocator, const char *source, t_bitset const *delimiters, const int32_t marker);
+char *string_tokenize_predicate(t_allocator *const allocator, const char *source, bool(predicate)(int32_t ch), const int32_t marker);
+char *string_tokenize_sequence(t_allocator *const allocator, const char *haystack, const char *needle, const int32_t marker);
 
 char *string_search_scalar(const char *source, const int32_t scalar, const uint64_t n);
 char *string_search_any(const char *source, t_bitset const *delimiters, const uint64_t n);
@@ -580,17 +599,18 @@ typedef struct s_vector
 
 } t_vector;
 
-t_vector  *vector_create(t_allocator *allocator);
-t_vector  *vector_destroy(t_vector *vector);
-t_vector  *vector_clear(t_vector *vector);
-bool       vector_resize(t_vector *vector, uint64_t new_size);
-t_vector  *vector_compact(t_vector *vector, uint64_t from);
-t_vector  *vector_expand(t_vector *vector, uint64_t at);
-bool       vector_is_empty(t_vector *vector);
-bool       vector_is_full(t_vector *vector);
-bool       vector_insert_at(t_vector *vector, uintptr_t value, uint64_t index);
-bool       vector_insert_back(t_vector *vector, uintptr_t value);
-bool       vector_insert_front(t_vector *vector, uintptr_t value);
+t_vector *vector_create(t_allocator *allocator);
+t_vector *vector_destroy(t_vector *vector);
+t_vector *vector_clear(t_vector *vector);
+bool      vector_resize(t_vector *vector, uint64_t new_size);
+t_vector *vector_compact(t_vector *vector, uint64_t from);
+t_vector *vector_expand(t_vector *vector, uint64_t at);
+bool      vector_is_empty(t_vector *vector);
+bool      vector_is_full(t_vector *vector);
+bool      vector_insert_at(t_vector *vector, uintptr_t value, uint64_t index);
+bool      vector_insert_back(t_vector *vector, uintptr_t value);
+bool      vector_insert_front(t_vector *vector, uintptr_t value);
+bool vector_insert_after(t_vector *vector, uintptr_t value, uint64_t index);
 uintptr_t  vector_peek_at(t_vector *vector, uint64_t index);
 uintptr_t  vector_peek_back(t_vector *vector);
 uintptr_t  vector_peek_front(t_vector *vector);
@@ -603,19 +623,22 @@ bool       vector_set_front(t_vector *vector, uintptr_t value);
 bool       vector_remove_at(t_vector *vector, uintptr_t index);
 bool       vector_remove_back(t_vector *vector);
 bool       vector_remove_front(t_vector *vector);
-bool 	   vector_copy_from(t_vector *vector, uint64_t offset, uintptr_t *src, uint64_t srcsize);
-bool       vector_copy(t_vector *vector, uintptr_t *src, uint64_t srcsize);
-bool       vector_push(t_vector *vector, uintptr_t elem);
-uintptr_t  vector_pop(t_vector *vector);
-bool       vector_enqueue(t_vector *vector, uintptr_t elem);
-uintptr_t  vector_dequeue(t_vector *vector);
+bool       vector_remove_after(t_vector *vector, uintptr_t index);
+bool vector_copy_from(t_vector *vector, uint64_t offset, uintptr_t *src, uint64_t srcsize);
+bool      vector_copy(t_vector *vector, uintptr_t *src, uint64_t srcsize);
+bool      vector_push(t_vector *vector, uintptr_t elem);
+uintptr_t vector_pop(t_vector *vector);
+bool      vector_enqueue(t_vector *vector, uintptr_t elem);
+uintptr_t vector_dequeue(t_vector *vector);
 t_vector *vector_concat(t_vector *dest, t_vector *src);
 t_vector *vector_join(t_allocator *allocator, t_vector *v1, t_vector *v2);
 uint64_t  vector_count(t_vector *vector);
 uint64_t  vector_capacity(t_vector *vector);
-bool	  vector_end_of_vec(t_vector *vector ,uint64_t index);
+bool      vector_end_of_vec(t_vector *vector, uint64_t index);
 void      vector_sort(t_vector *vector, t_compare *compare);
-
+bool      vector_end(t_vector *vector, uint64_t index);
+int64_t vector_index_of(t_vector *vector, uint64_t offset, uintptr_t elem, bool (*eql)(uintptr_t e1, uintptr_t e2));
+void vector_map_dtor(t_vector *vector, t_allocator *allocator, uintptr_t (*dtor)(t_allocator *allocator, uintptr_t elem));
 
 // ***********************************+************************************** //
 //                               Buffer                                       //
@@ -687,7 +710,6 @@ void      table_body_remove(t_table *self, char *key);
 void      table_body_resize(t_table *self, uint64_t capacity);
 uint64_t  table_body_find_empty(t_table *self, char *key);
 
-
 // ***********************************+************************************** //
 //                           print                                            //
 // ************************************************************************** //
@@ -718,6 +740,39 @@ int32_t   print(int fd, const char *fmt, ...);
 
 // misc
 
-void	_clib_assert(bool condition, char *func);
+void _clib_assert(bool condition, char *func);
+
+typedef struct s_iterator
+{
+	t_allocator *allocator;
+	t_vector    *vec;
+	t_dtor      *dtor;
+	uint64_t     index;
+	uint64_t     saved;
+} t_iterator;
+
+t_iterator *it_create(t_allocator *allocator);
+t_iterator *it_init_with_split(t_iterator *self, char **split);
+t_iterator *it_init_with_list(t_iterator *self, t_list *list);
+t_iterator *it_init_with_vector(t_iterator *self, t_vector *vector);
+t_iterator *it_set_dtor(t_iterator *self, t_dtor *dtor);
+
+uintptr_t it_next(t_iterator *self);
+uintptr_t it_insert_front(t_iterator *self, uintptr_t elem);
+uintptr_t it_remove_front(t_iterator *self);
+uintptr_t it_prev(t_iterator *self);
+uintptr_t it_match(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+bool      it_contains_matching(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+uintptr_t it_peekcurr(t_iterator *self);
+uintptr_t it_peeknext(t_iterator *self);
+uintptr_t it_peekprev(t_iterator *self);
+bool      it_end(t_iterator *self);
+bool      it_reset(t_iterator *self);
+uint64_t it_skip(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+
+t_iterator *it_deinit(t_iterator *self);
+bool        it_save(t_iterator *self);
+bool        it_restore(t_iterator *self);
+t_iterator *it_destroy(t_iterator *self);
 
 #endif

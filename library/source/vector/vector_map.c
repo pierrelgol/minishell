@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vector_expand.c                                    :+:      :+:    :+:   */
+/*   vector_map.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:43:53 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:43:54 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/26 13:50:37 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/26 13:50:41 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
 
-t_vector *vector_expand(t_vector *vector, uint64_t at)
+void vector_map_dtor(t_vector *vector, t_allocator *allocator, uintptr_t (*dtor)(t_allocator *allocator, uintptr_t elem))
 {
-	uint64_t bytes_to_move;
+	uint64_t index;
 
-	clib_assert(at <= vector->count);
-	bytes_to_move = (vector->count - at) * sizeof(uintptr_t);
-	memory_move(&vector->data[at + 1], &vector->data[at], bytes_to_move);
-	return (vector);
+	index = 0;
+	while (index < vector->count)
+	{
+		vector->data[index] = dtor(allocator, vector->data[index]);
+		++index;
+	}
 }
