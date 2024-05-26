@@ -19,6 +19,8 @@ uint64_t string_compute_scalar_split_size(const char *source, const int32_t scal
 
 	scalar_count = 0;
 	word_count = 0;
+	if (!source)
+		return (0);
 	while (*source)
 	{
 		while (*source && *source == scalar)
@@ -41,6 +43,8 @@ uint64_t string_compute_any_split_size(const char *source, t_bitset const *delim
 
 	any_count = 0;
 	word_count = 0;
+	if (!source)
+		return (0);
 	while (*source)
 	{
 		while (*source && bitset_is_set(delimiters, *source))
@@ -63,6 +67,8 @@ uint64_t string_compute_none_split_size(const char *source, t_bitset const *deli
 
 	none_count = 0;
 	word_count = 0;
+	if (!source)
+		return (0);
 	while (*source)
 	{
 		while (*source && !bitset_is_set(delimiters, *source))
@@ -85,6 +91,8 @@ uint64_t string_compute_predicate_split_size(const char *source, bool (predicate
 
 	predicate_count = 0;
 	word_count = 0;
+	if (!source)
+		return (0);
 	while (*source)
 	{
 		while (*source && predicate(*source))
@@ -113,6 +121,8 @@ uint64_t string_compute_sequence_split_size(const char *source, const char *need
 	sequence_count = 0;
 	nlen = string_length(needle);
 	slen = string_length(source);
+	if (!source)
+		return (0);
 	while (source[i])
 	{
 		while (i < slen && string_starts_with_sequence(&source[i], needle))

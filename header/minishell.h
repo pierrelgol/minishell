@@ -89,11 +89,10 @@ struct s_token_iterator
 {
 	t_allocator *allocator;
 	t_iterator  *it;
-	char       **tokens;
 };
 
 t_token_iterator *token_iterator_create(t_allocator *allocator);
-void token_iterator_init(t_allocator *allocator, t_token_iterator *self);
+void token_iterator_init(t_allocator *allocator, t_token_iterator *self, t_vector *vector);
 void token_iterator_deinit(t_allocator *allocator, t_token_iterator *self);
 t_token_iterator *token_iterator_destroy(t_allocator *allocator, t_token_iterator *self);
 
@@ -154,6 +153,8 @@ bool  shell_env_set(t_shell_env *self, char *key, char *value);
 void  shell_env_print_one(t_shell_env *self, char *key);
 void  shell_env_print_all(t_shell_env *self);
 void  shell_env_deinit(t_allocator *allocator, t_shell_env *self);
+/// DEBUG ONLY
+void         shell_env_print(t_shell_env *env);
 t_shell_env *shell_env_destroy(t_allocator *allocator, t_shell_env *self);
 
 struct s_shell_prompt
@@ -167,6 +168,7 @@ t_shell_prompt *shell_prompt_create(t_allocator *allocator, t_shell_env *env);
 void            shell_prompt_init(t_allocator *allocator, t_shell_prompt *self);
 char           *shell_prompt_get(t_shell_prompt *self);
 void shell_prompt_deinit(t_allocator *allocator, t_shell_prompt *self);
+void shell_prompt_print(t_shell_prompt *prompt);
 t_shell_prompt *shell_prompt_destroy(t_allocator *allocator, t_shell_prompt *self);
 
 struct s_shell_input
@@ -181,17 +183,22 @@ t_shell_input *shell_input_create(t_allocator *allocator, t_shell *shell, t_shel
 void           shell_input_init(t_allocator *allocator, t_shell_input *self);
 char          *shell_input_get(t_shell_input *self);
 void           shell_input_deinit(t_allocator *allocator, t_shell_input *self);
+void           shell_input_print(t_shell_input *self);
 t_shell_input *shell_input_destroy(t_allocator *allocator, t_shell_input *self);
 
 struct s_shell_tokenizer
 {
 	t_allocator   *allocator;
 	t_shell_input *input;
-	char         **used;
+	char         **split;
+	t_vector      *output;
+	t_bitset       bitset;
 };
 
-t_shell_tokenizer *shell_tokenizer_create(t_allocator *allocator);
-void shell_tokenizer_init(t_allocator *allocator, t_shell_tokenizer *self);
+t_shell_tokenizer *shell_tokenizer_create(t_allocator *allocator, t_shell_input *input, char *delimiters);
+void      shell_tokenizer_init(t_allocator *allocator, t_shell_tokenizer *self);
+t_vector *shell_tokenizer_get(t_shell_tokenizer *self);
+void      shell_tokenizer_print(t_shell_tokenizer *self);
 void shell_tokenizer_deinit(t_allocator *allocator, t_shell_tokenizer *self);
 t_shell_tokenizer *shell_tokenizer_destroy(t_allocator *allocator, t_shell_tokenizer *self);
 
@@ -199,11 +206,13 @@ struct s_shell_lexer
 {
 	t_allocator       *allocator;
 	t_shell_tokenizer *tokenizer;
+	t_iterator        *it;
 };
 
-t_shell_lexer *shell_lexer_create(t_allocator *allocator);
+t_shell_lexer *shell_lexer_create(t_allocator *allocator, t_shell_tokenizer *tokenizer);
 void           shell_lexer_init(t_allocator *allocator, t_shell_lexer *self);
 void           shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self);
+void           shell_lexer_print(t_shell_lexer *self);
 t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self);
 
 struct s_shell_linker

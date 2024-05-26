@@ -62,7 +62,7 @@ redirections = [">", ">>", "<", "<<"]
 incorrect_elements = ["-l cat", ">>>", "| |", ">> >>", "<>"]
 
 def generate_correct_command_chain():
-    num_commands = random.randint(1, 10)
+    num_commands = random.randint(1, 8)
     command_chain = []
 
     for i in range(num_commands):
@@ -73,7 +73,7 @@ def generate_correct_command_chain():
     return " ".join(command_chain)
 
 def generate_incorrect_command_chain():
-    num_commands = random.randint(2, 5)
+    num_commands = random.randint(1, 8)
     command_chain = []
 
     for i in range(num_commands):

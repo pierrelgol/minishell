@@ -23,7 +23,7 @@ t_token_iterator *token_iterator_create(t_allocator *allocator)
 	return (self);
 }
 
-void token_iterator_init(t_allocator *allocator, t_token_iterator *self)
+void token_iterator_init(t_allocator *allocator, t_token_iterator *self, t_vector *vector)
 {
 	assert(allocator != NULL);
 	assert(self != NULL);

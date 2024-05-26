@@ -112,7 +112,6 @@ void shell_env_print_one(t_shell_env *self, char *key)
 
 	maybe_value = shell_env_get(self, key);
 	assert(maybe_value != NULL);
-
 	print(1, "%s=%s\n", key, maybe_value);
 }
 
@@ -136,6 +135,14 @@ void shell_env_deinit(t_allocator *allocator, t_shell_env *self)
 	assert(allocator != NULL);
 	assert(self != NULL);
 	self->envp = NULL;
+}
+
+void shell_env_print(t_shell_env *env)
+{
+	print(1, "\n________________________________\n");
+	print(1, "\nshell_env output :\n");
+	shell_env_print_all(env);
+	print(1, "\n________________________________\n");
 }
 
 t_shell_env *shell_env_destroy(t_allocator *allocator, t_shell_env *self)

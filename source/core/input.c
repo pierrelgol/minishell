@@ -69,6 +69,14 @@ void shell_input_deinit(t_allocator *allocator, t_shell_input *self)
 	}
 }
 
+void shell_input_print(t_shell_input *self)
+{
+	print(1, "--------------------------------\n");
+	print(1, "shell_input ouput :\n");
+	print(1, "input : [%s]\n", self->line);
+	print(1, "--------------------------------\n");
+}
+
 t_shell_input *shell_input_destroy(t_allocator *allocator, t_shell_input *self)
 {
 	assert(self != NULL);

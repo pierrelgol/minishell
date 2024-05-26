@@ -16,10 +16,14 @@ t_iterator *it_deinit(t_iterator *self)
 {
 	uintptr_t elem;
 
-	while (!it_end(self))
+	if (self->dtor)
 	{
-		elem = it_peekcurr(self);
-		self->dtor(self->allocator, elem);
+		while (!it_end(self))
+		{
+			elem = it_peekcurr(self);
+			self->dtor(self->allocator, elem);
+		}
+		
 	}
 	vector_clear(self->vec);
 	self->index = 0;
@@ -43,4 +47,11 @@ bool it_restore(t_iterator *self)
 	return (true);
 }
 
-t_iterator *it_destroy(t_iterator *self);
+t_iterator *it_destroy(t_iterator *self)
+{
+	t_allocator *allocator;
+
+	allocator = self->allocator;
+	vector_destroy(self->vec);
+	return  (NULL);
+}

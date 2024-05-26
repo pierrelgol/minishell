@@ -12,7 +12,7 @@
 
 #include "../../header/minishell.h"
 
-t_shell_lexer *shell_lexer_create(t_allocator *allocator)
+t_shell_lexer *shell_lexer_create(t_allocator *allocator, t_shell_tokenizer *tokenizer)
 {
 	t_shell_lexer *self;
 
@@ -20,27 +20,62 @@ t_shell_lexer *shell_lexer_create(t_allocator *allocator)
 	self = allocator->create(allocator, sizeof(*self));
 	assert(self != NULL);
 	self->allocator = allocator;
+	self->tokenizer = tokenizer;
+	self->it = it_create(allocator);
 	return (self);
 }
 
 void shell_lexer_init(t_allocator *allocator, t_shell_lexer *self)
 {
+	t_vector *tokenized;
+	t_token *token;
+	uint64_t i;
+
 	assert(allocator != NULL);
 	assert(self != NULL);
+	i = 0;
+	tokenized = shell_tokenizer_get(self->tokenizer);
+	while (!vector_end(tokenized, i))
+	{
+		vector_insert_at(self->it->vec, vector_peek_at(tokenized, i), i);
+		++i;
+	}
+
 }
 
 void shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self)
 {
 	assert(allocator != NULL);
 	assert(self != NULL);
+	it_deinit(self->it);
+}
+
+void shell_lexer_print(t_shell_lexer *self)
+{
+	int32_t  i;
+	t_token *token;
+
+	i = 0;
+	print(1, "--------------------------------\n");
+	print(1, "shell_lexer ouput :\n");
+	assert(self->it->vec->count = self->tokenizer->output->count);
+	while (!it_end(self->it))
+	{
+		token = (t_token *) it_peekcurr(self->it);
+		if (token)
+			print(1, "[%d][%s]\n", i, token->str);
+		it_next(self->it);
+		++i;
+	}
+	print(1, "--------------------------------\n");
 }
 
 t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self)
 {
-
 	assert(self != NULL);
 	assert(allocator != NULL);
 
+	it_destroy(self->it);
 	allocator->destroy(allocator, self);
 	return (NULL);
 }

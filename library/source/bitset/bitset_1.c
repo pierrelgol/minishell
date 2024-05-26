@@ -16,7 +16,7 @@ t_bitset	bitset_init_empty(void)
 {
 	t_bitset	bitset;
 
-	memory_set(&bitset, sizeof(t_bitset), BITSET_SIZE);
+	memory_set(&bitset, 0x00, sizeof(t_bitset));
 	return (bitset);
 }
 

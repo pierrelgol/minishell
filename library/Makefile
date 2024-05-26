@@ -13,45 +13,45 @@
 
 CC     =  clang
 RM     =  rm -f
-CFLAGS =  -Wall                                     \
-          -Wextra                                   \
-          -g3                                       \
-          -march=native                             \
-          -mtune=native                             \
-          -fsanitize=address                        \
-          -fsanitize=undefined                      \
-          -fsanitize=integer                        \
-          -fstrict-overflow                         \
-          -Walloca                                  \
-          -Wformat=2                                \
-          -Wformat-security                         \
-          -Wnull-dereference                        \
-          -Wstack-protector                         \
-          -Wvla                                     \
-          -Wshorten-64-to-32                        \
-          -Warray-bounds                            \
-          -Warray-bounds-pointer-arithmetic         \
-          -Wimplicit-fallthrough                    \
-          -Wloop-analysis                           \
-          -Wshift-sign-overflow                     \
-          -Wswitch-enum                             \
-          -Wtautological-constant-in-range-compare  \
-          -Wcomma                                   \
-          -Wassign-enum                             \
-          -Wbad-function-cast                       \
-          -Wfloat-equal                             \
-          -Wformat-type-confusion                   \
-          -Wpointer-arith                           \
-          -Widiomatic-parentheses                   \
-          -Wunreachable-code-aggressive             \
-          -fstack-protector-all                     \
-          -fPIE                                     \
-          -fno-optimize-sibling-calls               \
+# CFLAGS =  -Wall                                     \
+#           -Wextra                                   \
+#           -g3                                       \
+#           -march=native                             \
+#           -mtune=native                             \
+#           -fsanitize=address                        \
+#           -fsanitize=undefined                      \
+#           -fsanitize=integer                        \
+#           -fstrict-overflow                         \
+#           -Walloca                                  \
+#           -Wformat=2                                \
+#           -Wformat-security                         \
+#           -Wnull-dereference                        \
+#           -Wstack-protector                         \
+#           -Wvla                                     \
+#           -Wshorten-64-to-32                        \
+#           -Warray-bounds                            \
+#           -Warray-bounds-pointer-arithmetic         \
+#           -Wimplicit-fallthrough                    \
+#           -Wloop-analysis                           \
+#           -Wshift-sign-overflow                     \
+#           -Wswitch-enum                             \
+#           -Wtautological-constant-in-range-compare  \
+#           -Wcomma                                   \
+#           -Wassign-enum                             \
+#           -Wbad-function-cast                       \
+#           -Wfloat-equal                             \
+#           -Wformat-type-confusion                   \
+#           -Wpointer-arith                           \
+#           -Widiomatic-parentheses                   \
+#           -Wunreachable-code-aggressive             \
+#           -fstack-protector-all                     \
+#           -fPIE                                     \
+#           -fno-optimize-sibling-calls               \
 
 
-# CFLAGS =   -Wall                                    \
-#            -Wextra                                  \
-#            -glldb                                   \
+CFLAGS =   -Wall                                    \
+           -Wextra                                  \
+           -g3                                   \
 
 NAME   =    libclib.a
 DIRS   =    source/memory                           \
@@ -67,6 +67,7 @@ DIRS   =    source/memory                           \
             source/misc                             \
             source/table                            \
             source/bitset                           \
+            source/iterator                         \
             source/print                            \
 
 SRCS := $(foreach dir,$(DIRS),$(wildcard ./$(dir)/*.c))

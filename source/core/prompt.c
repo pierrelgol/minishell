@@ -33,7 +33,6 @@ void shell_prompt_init(t_allocator *allocator, t_shell_prompt *self)
 
 	assert(allocator != NULL);
 	assert(self != NULL);
-	assert(pwd != NULL);
 	pwd = shell_env_get(self->env, "PWD");
 	temp1 = string_join_sequence(allocator, YELLOW, pwd);
 	assert(temp1 != NULL);
@@ -59,6 +58,14 @@ void shell_prompt_deinit(t_allocator *allocator, t_shell_prompt *self)
 		allocator->destroy(allocator, self->prompt);
 		self->prompt = NULL;
 	}
+}
+
+void shell_prompt_print(t_shell_prompt *prompt)
+{
+	print(1, "--------------------------------\n");
+	print(1, "shell_prompt ouput :\n");
+	print(1, "prompt : [%s]\n",prompt->prompt);
+	print(1, "--------------------------------\n");
 }
 
 t_shell_prompt *shell_prompt_destroy(t_allocator *allocator, t_shell_prompt *self)

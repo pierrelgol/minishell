@@ -30,7 +30,7 @@ uint64_t it_skip(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, u
 		it_next(self);
 		++count;
 	}
-	return (1);
+	return (count);
 }
 
 bool it_contains_matching(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2))

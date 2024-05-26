@@ -29,7 +29,7 @@ int main(int argc, char **argv, char **envp)
 		shell_main(allocator, shell);
 		shell_deinit(allocator, shell);
 	}
-	shell = shell_destroy(allocator, shell);
+	// shell = shell_destroy(allocator, shell);
 	allocator = gpa_deinit(allocator);
 	return (0);
 }
