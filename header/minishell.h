@@ -72,8 +72,25 @@ void    signal_set(int64_t signal);
 
 typedef enum e_token_kind
 {
-	KIND_NO_KIND,
+    KIND_NO_KIND,    // No specific token kind
+    KIND_ID,
+    KIND_KW,
+    KIND_VAR,
+    KIND_SPC,        // Space
+    KIND_PIPE,       // Pipe symbol '|'
+    KIND_RED_IN,     // Input redirection '<'
+    KIND_RED_OUT,    // Output redirection '>'
+    KIND_RED_APPEND, // Output redirection append '>>'
+    KIND_RED_HERE_DOC, // Output redirection append '>>'
+    KIND_SCOLON,     // Semicolon ';'
+    KIND_AND,        // Logical AND '&&'
+    KIND_OR,         // Logical OR '||'
+    KIND_FILE,       // File name
+    KIND_PATH,       // File path
+    KIND_BUILTIN,    // Built-in command
+    KIND_ARG         // Command argument
 } t_token_kind;
+
 
 struct s_token_payload
 {
@@ -210,7 +227,16 @@ struct s_shell_lexer
 };
 
 t_shell_lexer *shell_lexer_create(t_allocator *allocator, t_shell_tokenizer *tokenizer);
-void           shell_lexer_init(t_allocator *allocator, t_shell_lexer *self);
+void shell_lexer_init(t_allocator *allocator, t_shell_lexer *self);
+void shell_lexer_lex(t_shell_lexer *self);
+
+void shell_lexer_identify_whitespace(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_builtins(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_keywords(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_operators(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_id(t_shell_lexer *self, t_iterator *it);
+
+t_iterator    *shell_lexer_get(t_shell_lexer *self);
 void           shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self);
 void           shell_lexer_print(t_shell_lexer *self);
 t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self);
@@ -290,5 +316,6 @@ int32_t key_compare(uintptr_t k1, uintptr_t k2);
 
 // debug
 char *direct_io(t_shell *shell);
+char *getkind(t_token_kind kind);
 
 #endif

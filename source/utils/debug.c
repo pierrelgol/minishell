@@ -20,3 +20,46 @@ char *direct_io(t_shell *shell)
 		return (shell->argv[i++]);
 	return (NULL);
 }
+
+char *getkind(t_token_kind kind)
+{
+	switch (kind)
+	{
+	case KIND_NO_KIND:
+		return "NO_KIND";
+	case KIND_SPC:
+		return "SPC";
+	case KIND_RED_HERE_DOC:
+		return "HERE_DOC";
+	case KIND_ID:
+		return "ID";
+	case KIND_VAR:
+		return "VAR";
+	case KIND_KW:
+		return "KW";
+	case KIND_PIPE:
+		return "PIPE";
+	case KIND_RED_IN:
+		return "RED_IN";
+	case KIND_RED_OUT:
+		return "RED_OUT";
+	case KIND_RED_APPEND:
+		return "RED_APPEND";
+	case KIND_SCOLON:
+		return "SCOLON";
+	case KIND_AND:
+		return "AND";
+	case KIND_OR:
+		return "OR";
+	case KIND_FILE:
+		return "FILE";
+	case KIND_PATH:
+		return "PATH";
+	case KIND_BUILTIN:
+		return "BUILTIN";
+	case KIND_ARG:
+		return "ARG";
+	default:
+		return "UNKNOWN";
+	}
+}

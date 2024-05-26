@@ -54,7 +54,7 @@ EXE_HEADER_DIR = ./header
 EXE_SOURCE_DIR = source/.                   \
                  source/core                \
                  source/builtin             \
-                 source/parsing             \
+                 source/lexer               \
                  source/executor            \
                  source/utils               
 EXE_NAME = minishell

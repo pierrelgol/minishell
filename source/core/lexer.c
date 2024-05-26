@@ -40,7 +40,12 @@ void shell_lexer_init(t_allocator *allocator, t_shell_lexer *self)
 		vector_insert_at(self->it->vec, vector_peek_at(tokenized, i), i);
 		++i;
 	}
+	shell_lexer_lex(self);
+}
 
+t_iterator *shell_lexer_get(t_shell_lexer *self)
+{
+	return (self->it);
 }
 
 void shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self)
@@ -52,22 +57,24 @@ void shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self)
 
 void shell_lexer_print(t_shell_lexer *self)
 {
-	int32_t  i;
 	t_token *token;
+	int32_t  i;
 
 	i = 0;
 	print(1, "--------------------------------\n");
 	print(1, "shell_lexer ouput :\n");
 	assert(self->it->vec->count = self->tokenizer->output->count);
+	it_save(self->it);
 	while (!it_end(self->it))
 	{
 		token = (t_token *) it_peekcurr(self->it);
 		if (token)
-			print(1, "[%d][%s]\n", i, token->str);
+			print(1, "[%d][%s][%s]\n", i, token->str, getkind(token->kind));
 		it_next(self->it);
 		++i;
 	}
 	print(1, "--------------------------------\n");
+	it_restore(self->it);
 }
 
 t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self)

@@ -26,7 +26,7 @@ t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **
 	self->sh_env = shell_env_create(allocator);
 	self->sh_prompt = shell_prompt_create(allocator, self->sh_env);
 	self->sh_input = shell_input_create(allocator, self, self->sh_prompt);
-	self->sh_tokenizer = shell_tokenizer_create(allocator, self->sh_input, " ;<>|&$()=");
+	self->sh_tokenizer = shell_tokenizer_create(allocator, self->sh_input, " \t\n");
 	self->sh_lexer = shell_lexer_create(allocator, self->sh_tokenizer);
 	// self->sh_linker = shell_linker_create(allocator);
 	// self->blt_cd = builtin_cd_create(allocator);
