@@ -17,11 +17,13 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 
+#define ALPHA "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define ALNUM "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 #define DEBUG_LINE "echo \"Hello World\";"
+
 extern int64_t g_signal;
 
 typedef struct s_token_payload   t_token_payload;
-typedef struct s_token_iterator  t_token_iterator;
 typedef struct s_token           t_token;
 typedef struct s_shell           t_shell;
 typedef struct s_shell_tokenizer t_shell_tokenizer;
@@ -72,25 +74,30 @@ void    signal_set(int64_t signal);
 
 typedef enum e_token_kind
 {
-    KIND_NO_KIND,    // No specific token kind
-    KIND_ID,
-    KIND_KW,
-    KIND_VAR,
-    KIND_SPC,        // Space
-    KIND_PIPE,       // Pipe symbol '|'
-    KIND_RED_IN,     // Input redirection '<'
-    KIND_RED_OUT,    // Output redirection '>'
-    KIND_RED_APPEND, // Output redirection append '>>'
-    KIND_RED_HERE_DOC, // Output redirection append '>>'
-    KIND_SCOLON,     // Semicolon ';'
-    KIND_AND,        // Logical AND '&&'
-    KIND_OR,         // Logical OR '||'
-    KIND_FILE,       // File name
-    KIND_PATH,       // File path
-    KIND_BUILTIN,    // Built-in command
-    KIND_ARG         // Command argument
+	KIND_NO_KIND,
+	KIND_ID,
+	KIND_ASSIGNMENT,
+	KIND_CMD,
+	KIND_QUOTE_START,
+	KIND_QUOTE_END,
+	KIND_DQUOTE_START,
+	KIND_DQUOTE_END,
+	KIND_KW,
+	KIND_VAR,
+	KIND_SPC,
+	KIND_PIPE,
+	KIND_RED_IN,
+	KIND_RED_OUT,
+	KIND_RED_APPEND,
+	KIND_RED_HERE_DOC,
+	KIND_SCOLON,
+	KIND_AND,
+	KIND_OR,
+	KIND_FILE,
+	KIND_PATH,
+	KIND_BUILTIN,
+	KIND_ARG
 } t_token_kind;
-
 
 struct s_token_payload
 {
@@ -101,17 +108,6 @@ t_token_payload *token_payload_create(t_allocator *allocator);
 void token_payload_init(t_allocator *allocator, t_token_payload *self);
 void token_payload_deinit(t_allocator *allocator, t_token_payload *self);
 t_token_payload *token_payload_destroy(t_allocator *allocator, t_token_payload *self);
-
-struct s_token_iterator
-{
-	t_allocator *allocator;
-	t_iterator  *it;
-};
-
-t_token_iterator *token_iterator_create(t_allocator *allocator);
-void token_iterator_init(t_allocator *allocator, t_token_iterator *self, t_vector *vector);
-void token_iterator_deinit(t_allocator *allocator, t_token_iterator *self);
-t_token_iterator *token_iterator_destroy(t_allocator *allocator, t_token_iterator *self);
 
 struct s_token
 {
@@ -235,6 +231,12 @@ void shell_lexer_identify_builtins(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_keywords(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_operators(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_id(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_path(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_file(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_quotes(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_assignment(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_cmd(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_arg(t_shell_lexer *self, t_iterator *it);
 
 t_iterator    *shell_lexer_get(t_shell_lexer *self);
 void           shell_lexer_deinit(t_allocator *allocator, t_shell_lexer *self);
@@ -243,11 +245,20 @@ t_shell_lexer *shell_lexer_destroy(t_allocator *allocator, t_shell_lexer *self);
 
 struct s_shell_linker
 {
-	t_allocator *allocator;
+	t_allocator   *allocator;
+	t_shell_lexer *lexer;
+	t_shell_env   *env;
+	char         **paths;
+	t_vector      *payload_vector;
+	t_iterator    *it;
 };
 
-t_shell_linker *shell_linker_create(t_allocator *allocator);
-void            shell_linker_init(t_allocator *allocator, t_shell_linker *self);
+t_shell_linker *shell_linker_create(t_allocator *allocator, t_shell_env *env, t_shell_lexer *lexer);
+void        shell_linker_init(t_allocator *allocator, t_shell_linker *self);
+t_iterator *shell_linker_get(t_shell_linker *linker);
+char *shell_linker_make_path(t_allocator *allocator, const char *prefix, const char *suffix);
+bool shell_linker_test_path_cmd(t_allocator *allocator, const char *prefix, const char *suffix);
+bool shell_linker_test_path_file_or_dir(t_allocator *allocator, const char *prefix, const char *suffix);
 void shell_linker_deinit(t_allocator *allocator, t_shell_linker *self);
 t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *self);
 
@@ -317,5 +328,10 @@ int32_t key_compare(uintptr_t k1, uintptr_t k2);
 // debug
 char *direct_io(t_shell *shell);
 char *getkind(t_token_kind kind);
+
+bool is_path(const char *str);
+bool is_file(const char *str);
+bool is_identifier(int32_t ch);
+bool is_identifier_start(int32_t ch);
 
 #endif

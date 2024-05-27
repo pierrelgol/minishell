@@ -91,7 +91,7 @@ void shell_tokenizer_print(t_shell_tokenizer *self)
 	{
 		token = (t_token*) vector_peek_at(self->output, i);
 		if (token)
-			print(1, "[%d][%s][KIND_NO_KIND]\n", i, token->str);
+			print(1, "[%d][%s]\n", i, token->str);
 		++i;
 	}
 	print(1, "--------------------------------\n");

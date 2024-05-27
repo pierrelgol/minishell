@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python3 ./fuzzer.py -n 1
+python3 ./fuzzer.py -i

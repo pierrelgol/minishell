@@ -29,6 +29,16 @@ char *getkind(t_token_kind kind)
 		return "NO_KIND";
 	case KIND_SPC:
 		return "SPC";
+	case KIND_QUOTE_START:
+		return "QUOTE_START";
+	case KIND_QUOTE_END:
+		return "QUOTE_END";
+	case KIND_DQUOTE_START:
+		return "DQUOTE_START";
+	case KIND_DQUOTE_END:
+		return "DQUOTE_END";
+	case KIND_ASSIGNMENT:
+		return "KIND_ASSIGNMENT";
 	case KIND_RED_HERE_DOC:
 		return "HERE_DOC";
 	case KIND_ID:

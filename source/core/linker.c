@@ -12,7 +12,7 @@
 
 #include "../../header/minishell.h"
 
-t_shell_linker *shell_linker_create(t_allocator *allocator)
+t_shell_linker *shell_linker_create(t_allocator *allocator, t_shell_lexer *lexer)
 {
 	t_shell_linker *self;
 
@@ -20,6 +20,8 @@ t_shell_linker *shell_linker_create(t_allocator *allocator)
 	self = allocator->create(allocator, sizeof(*self));
 	assert(self != NULL);
 	self->allocator = allocator;
+	self->lexer = lexer;
+	self->it = NULL;
 	return (self);
 }
 
@@ -27,6 +29,8 @@ void shell_linker_init(t_allocator *allocator, t_shell_linker *self)
 {
 	assert(allocator != NULL);
 	assert(self != NULL);
+
+	self->it = shell_lexer_get(self->lexer);
 }
 
 void shell_linker_deinit(t_allocator *allocator, t_shell_linker *self)

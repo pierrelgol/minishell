@@ -19,6 +19,39 @@ bool from_string_to_key_value_pair(t_allocator *allocator, char *source, char **
 	return (true);
 }
 
+bool is_identifier_start(int32_t ch)
+{
+	return (is_alpha(ch) || ch == '_');
+}
+
+bool is_identifier(int32_t ch)
+{
+	return (is_alnum(ch) || ch == '_');
+}
+
+bool is_path(const char *str)
+{
+	t_bitset start;
+	t_bitset inside;
+
+	start = bitset_init_from_str("/~.");
+	inside = bitset_set_bit_range(&inside, ALNUM);
+	inside = bitset_set_bit_range(&inside, "/.");
+	if (string_starts_with_any(str, &start))
+	{
+		if (string_is_all_any(&str[1], &inside))
+			return (true);
+	}
+	return false;
+}
+
+bool is_file(const char *str)
+{
+	if (string_contains_scalar(str, '.', string_length(str)))
+		return (true);
+	return (false);
+}
+
 int32_t key_compare(uintptr_t k1, uintptr_t k2)
 {
 	unsigned char *p1;
