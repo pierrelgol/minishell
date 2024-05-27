@@ -262,6 +262,7 @@ char *shell_linker_make_path(t_allocator *allocator, const char *prefix, const c
 bool shell_linker_test_path_cmd(t_allocator *allocator, const char *prefix, const char *suffix);
 bool shell_linker_test_path_file_or_dir(t_allocator *allocator, const char *prefix, const char *suffix);
 void shell_linker_deinit(t_allocator *allocator, t_shell_linker *self);
+void shell_linker_print(t_shell_linker *self);
 t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *self);
 
 struct s_builtin_cd

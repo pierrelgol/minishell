@@ -22,22 +22,55 @@ t_shell_linker *shell_linker_create(t_allocator *allocator, t_shell_env *env, t_
 	self->allocator = allocator;
 	self->lexer = lexer;
 	self->env = env;
-	self->it = NULL;
+	self->payload_vector = vector_create(allocator);
+	self->paths = NULL;
+	self->it = it_create(allocator);
 	return (self);
 }
 
 void shell_linker_init(t_allocator *allocator, t_shell_linker *self)
 {
+	char *path;
 	assert(allocator != NULL);
 	assert(self != NULL);
-
-	self->it = shell_lexer_get(self->lexer);
+	path = shell_env_get(self->env, "PATH");
+	self->paths = string_split_scalar(allocator, path, ':');
+	it_init_with_split(self->it, self->paths);
 }
 
 void shell_linker_deinit(t_allocator *allocator, t_shell_linker *self)
 {
+	uint64_t i;
+
 	assert(allocator != NULL);
 	assert(self != NULL);
+	i = 0;
+	if (self->paths)
+	{
+		while (self->paths[i])
+			allocator->destroy(allocator, self->paths[i++]);
+		allocator->destroy(allocator, self->paths);
+	}
+	self->paths = NULL;
+	it_reset(self->it);
+}
+
+void shell_linker_print(t_shell_linker *self)
+{
+	char *path;
+
+	print(1, "--------------------------------\n");
+	print(1, "shell_linker output\n");
+	it_save(self->it);
+	while (!it_end(self->it))
+	{
+		path = (char *) it_peekcurr(self->it);
+		if (path)
+			print(1, "%s\n", path);
+		it_next(self->it);
+	}
+	it_restore(self->it);
+	print(1, "--------------------------------\n");
 }
 
 t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *self)
@@ -45,6 +78,8 @@ t_shell_linker *shell_linker_destroy(t_allocator *allocator, t_shell_linker *sel
 	assert(self != NULL);
 	assert(allocator != NULL);
 
+	it_destroy(self->it);
+	vector_destroy(self->payload_vector);
 	allocator->destroy(allocator, self);
 	return (NULL);
 }

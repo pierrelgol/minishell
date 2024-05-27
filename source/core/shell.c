@@ -28,7 +28,7 @@ t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **
 	self->sh_input = shell_input_create(allocator, self, self->sh_prompt);
 	self->sh_tokenizer = shell_tokenizer_create(allocator, self->sh_input, " \t\n");
 	self->sh_lexer = shell_lexer_create(allocator, self->sh_tokenizer);
-	// self->sh_linker = shell_linker_create(allocator);
+	self->sh_linker = shell_linker_create(allocator, self->sh_env, self->sh_lexer);
 	// self->blt_cd = builtin_cd_create(allocator);
 	// self->blt_env = builtin_env_create(allocator);
 	// self->blt_pwd = builtin_pwd_create(allocator);
@@ -46,7 +46,7 @@ void shell_init(t_allocator *allocator, t_shell *self)
 	shell_input_init(allocator, self->sh_input);
 	shell_tokenizer_init(allocator, self->sh_tokenizer);
 	shell_lexer_init(allocator, self->sh_lexer);
-	// shell_linker_init(allocator, self->sh_linker);
+	shell_linker_init(allocator, self->sh_linker);
 	// builtin_cd_init(allocator, self->blt_cd);
 	// builtin_env_init(allocator, self->blt_env);
 	// builtin_pwd_init(allocator, self->blt_pwd);
@@ -71,6 +71,7 @@ void shell_main(t_allocator *allocator, t_shell *self)
 		shell_input_print(self->sh_input);
 		shell_tokenizer_print(self->sh_tokenizer);
 		shell_lexer_print(self->sh_lexer);
+		shell_linker_print(self->sh_linker);
 		// print(1, "%s\n", line);
 	}
 }
@@ -82,8 +83,7 @@ void shell_deinit(t_allocator *allocator, t_shell *self)
 	shell_input_deinit(allocator, self->sh_input);
 	shell_tokenizer_deinit(allocator, self->sh_tokenizer);
 	shell_lexer_deinit(allocator, self->sh_lexer);
-	// shell_linker_deinit(allocator, self->sh_linker);
-	// shell_prompt_deinit(allocator, self->sh_prompt);
+	shell_linker_deinit(allocator, self->sh_linker);
 }
 
 t_shell *shell_destroy(t_allocator *allocator, t_shell *self)
@@ -95,7 +95,7 @@ t_shell *shell_destroy(t_allocator *allocator, t_shell *self)
 	shell_input_destroy(allocator, self->sh_input);
 	shell_tokenizer_destroy(allocator, self->sh_tokenizer);
 	shell_lexer_destroy(allocator, self->sh_lexer);
-	// shell_linker_destroy(allocator, self->sh_linker);
+	shell_linker_destroy(allocator, self->sh_linker);
 	// builtin_cd_destroy(allocator, self->blt_cd);
 	// builtin_env_destroy(allocator, self->blt_env);
 	// builtin_pwd_destroy(allocator, self->blt_pwd);
