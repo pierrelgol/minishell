@@ -13,6 +13,7 @@
 CC = clang
 CFLAGS =  -Wall                                     \
           -Wextra                                   \
+          -Werror                                   \
           -DDIRECT_IO=1                             \
           -g3                                       \
           -march=native                             \
@@ -37,7 +38,6 @@ CFLAGS =  -Wall                                     \
           -Wtautological-constant-in-range-compare  \
           -Wcomma                                   \
           -Wassign-enum                             \
-          -Wbad-function-cast                       \
           -Wfloat-equal                             \
           -Wformat-type-confusion                   \
           -Wpointer-arith                           \

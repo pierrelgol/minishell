@@ -23,6 +23,7 @@ void shell_lexer_lex(t_shell_lexer *self)
 	shell_lexer_identify_keywords(self, self->it);
 	shell_lexer_identify_quotes(self, self->it);
 	shell_lexer_identify_assignment(self, self->it);
+	shell_lexer_identify_error(self, self->it);
 	// shell_lexer_kind_command(self, self->it);
 }
 
@@ -37,22 +38,22 @@ void shell_lexer_identify_operators(t_shell_lexer *self, t_iterator *it)
 		token = (t_token *) it_peekcurr(it);
 		if (token && token->kind == KIND_NO_KIND)
 		{
-			if (token && string_compare(token->str, "<<") == 0)
+			if (token && string_compare("<<", token->str) == 0)
 				token->kind = KIND_RED_HERE_DOC;
-			if (token && string_compare(token->str, "<<") == 0)
-				token->kind = KIND_RED_HERE_DOC;
-			else if (token && string_compare(token->str, ">>") == 0)
+			else if (token && string_compare(">>", token->str) == 0)
 				token->kind = KIND_RED_APPEND;
-			else if (token && string_compare(token->str, "||") == 0)
+			else if (token && string_compare("||", token->str) == 0)
 				token->kind = KIND_OR;
-			else if (token && string_compare(token->str, "&&") == 0)
+			else if (token && string_compare("&&", token->str) == 0)
 				token->kind = KIND_AND;
-			else if (token && string_compare(token->str, "<") == 0)
+			else if (token && string_compare("<", token->str) == 0)
 				token->kind = KIND_RED_IN;
-			else if (token && string_compare(token->str, ">") == 0)
+			else if (token && string_compare(">", token->str) == 0)
 				token->kind = KIND_RED_OUT;
-			else if (token && string_compare(token->str, "|") == 0)
+			else if (token && string_compare("|", token->str) == 0)
 				token->kind = KIND_PIPE;
+			else if (token && string_compare(";", token->str) == 0)
+				token->kind = KIND_SCOLON;
 		}
 		it_next(it);
 	}
@@ -144,6 +145,7 @@ void shell_lexer_identify_id(t_shell_lexer *self, t_iterator *it)
 	set = bitset_init_from_str("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP"
 	                           "QRSTUVWXYZ");
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -153,7 +155,6 @@ void shell_lexer_identify_id(t_shell_lexer *self, t_iterator *it)
 			{
 				if (string_is_all_any(&token->str[1], &set))
 					token->kind = KIND_ID;
-
 			}
 			else if (token->str[0] == '$')
 				token->kind = KIND_VAR;
@@ -168,6 +169,7 @@ void shell_lexer_identify_builtins(t_shell_lexer *self, t_iterator *it)
 	t_token *token;
 
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -196,6 +198,7 @@ void shell_lexer_identify_path(t_shell_lexer *self, t_iterator *it)
 	t_token *token;
 
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -214,6 +217,7 @@ void shell_lexer_identify_file(t_shell_lexer *self, t_iterator *it)
 	t_token *token;
 
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -232,6 +236,7 @@ void shell_lexer_identify_quotes(t_shell_lexer *self, t_iterator *it)
 	t_token *token;
 
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -251,18 +256,32 @@ void shell_lexer_identify_quotes(t_shell_lexer *self, t_iterator *it)
 	it_restore(it);
 }
 
-// void shell_lexer_identify_cmd(t_shell_lexer *self, t_iterator *it)
-// {
-// }
+
+void shell_lexer_identify_error(t_shell_lexer *self, t_iterator *it)
+{
+	t_token *token;
+
+	it_save(it);
+	(void) self;
+	while (!it_end(it))
+	{
+		token = (t_token *) it_peekcurr(it);
+		if (token && token->kind == KIND_NO_KIND)
+			token->kind = KIND_ERR;
+		it_next(it);
+	}
+	it_restore(it);	
+}
 
 void shell_lexer_identify_assignment(t_shell_lexer *self, t_iterator *it)
 {
 	t_token *token;
-	bool	start;
-	bool	mid;
-	bool	end;
+	bool     start;
+	bool     mid;
+	bool     end;
 
 	it_save(it);
+	(void) self;
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peekcurr(it);
@@ -270,7 +289,7 @@ void shell_lexer_identify_assignment(t_shell_lexer *self, t_iterator *it)
 		{
 			start = string_starts_with_predicate(token->str, is_ascii);
 			mid = string_contains_scalar(token->str, '=', 999);
-			end  = string_ends_with_predicate(token->str, is_ascii);
+			end = string_ends_with_predicate(token->str, is_ascii);
 			if (start && mid && end)
 				token->kind = KIND_ASSIGNMENT;
 		}

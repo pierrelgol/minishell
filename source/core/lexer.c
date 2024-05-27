@@ -28,7 +28,6 @@ t_shell_lexer *shell_lexer_create(t_allocator *allocator, t_shell_tokenizer *tok
 void shell_lexer_init(t_allocator *allocator, t_shell_lexer *self)
 {
 	t_vector *tokenized;
-	t_token *token;
 	uint64_t i;
 
 	assert(allocator != NULL);

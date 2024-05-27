@@ -96,7 +96,8 @@ typedef enum e_token_kind
 	KIND_FILE,
 	KIND_PATH,
 	KIND_BUILTIN,
-	KIND_ARG
+	KIND_ARG,
+	KIND_ERR,
 } t_token_kind;
 
 struct s_token_payload
@@ -235,6 +236,7 @@ void shell_lexer_identify_path(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_file(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_quotes(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_assignment(t_shell_lexer *self, t_iterator *it);
+void shell_lexer_identify_error(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_cmd(t_shell_lexer *self, t_iterator *it);
 void shell_lexer_identify_arg(t_shell_lexer *self, t_iterator *it);
 

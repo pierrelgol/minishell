@@ -27,6 +27,10 @@ char *getkind(t_token_kind kind)
 	{
 	case KIND_NO_KIND:
 		return "NO_KIND";
+	case KIND_ERR:
+		return "ERR";
+	case KIND_CMD:
+		return "CMD";
 	case KIND_SPC:
 		return "SPC";
 	case KIND_QUOTE_START:
