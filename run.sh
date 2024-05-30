@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-./minishell
+python3 ./fuzzer.py -n 1000

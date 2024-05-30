@@ -30,10 +30,7 @@ void	*memory_move(void *dst, const void *src, uint64_t len)
 		}
 		return (dst);
 	}
-	while (len != 0)
-	{
+	while (len--)
 		*ptr_dst++ = *ptr_src++;
-		--len;
-	}
 	return (dst);
 }

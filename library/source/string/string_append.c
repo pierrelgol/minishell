@@ -20,7 +20,7 @@ char	*string_append_scalar(char *dest, const int32_t scalar,
 	i = string_length(dest);
 	if ((i + 1) < destsize)
 	{
-		dest[i++] = (char)scalar;
+		dest[i++] = scalar;
 		dest[i] = 0x00;
 	}
 	return (dest);
@@ -51,7 +51,7 @@ char	*string_append_scalar_sequence(char *dest, const int32_t scalar,
 	i = string_length(dest);
 	if ((i + 1) < destsize)
 	{
-		dest[i++] = (char)scalar;
+		dest[i++] = scalar;
 		dest[i] = 0x00;
 	}
 	if (!sequence)
@@ -80,7 +80,6 @@ char	*string_append_many_sequence(char *dest, const char **many,
 		while (sequence[k] && (i + 1) < destsize)
 			dest[i++] = (char)sequence[k++];
 		dest[i] = 0x00;
-		++j;
 	}
 	return (dest);
 }
@@ -98,10 +97,10 @@ char	*string_append_many_scalar_sequence(char *dest, const int32_t scalar,
 	while (many[j])
 	{
 		k = 0;
-		sequence = (char *)many[j++];
+		sequence = (char *)many[j];
 		if ((i + 1) < destsize)
 		{
-			dest[i++] = (char) scalar;
+			dest[i++] = scalar;
 			dest[i] = 0x00;
 		}
 		while (sequence[k] && (i + 1) < destsize)

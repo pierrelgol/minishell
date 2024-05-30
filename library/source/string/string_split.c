@@ -12,132 +12,124 @@
 
 #include "../../include/clib.h"
 
-char	**string_split_scalar(t_allocator *const allocator, const char *source,
-		const int32_t scalar)
+char **string_split_scalar(t_allocator *const allocator, const char *source, const int32_t scalar)
 {
-	char		**result;
-	uint64_t	len;
-	uint64_t	i;
-	uint64_t	j;
+	char   **result;
+	uint64_t size;
+	uint64_t i;
+	uint64_t j;
 
-	if (!source)
-		return (NULL);
-	len = string_wcount_scalar(source, scalar) + string_count_scalar(source,
-			scalar, string_length(source));
-	result = allocator->create(allocator, (len + 1) * sizeof(char *));
+	size = string_compute_scalar_split_size(source, scalar);
+	result = allocator->create(allocator, (size + 1) * sizeof(char *));
 	i = 0;
 	j = 0;
-	while (i < len)
+	while (j < size && source[i])
 	{
-		while (source[j] && source[j] == scalar)
-			result[i++] = string_clone_scalar(allocator, source[j++]);
-		if (source[j])
-			result[i] = string_substring_scalar(allocator, &source[j], scalar);
-		j += string_length(result[i++]);
+		while (source[i] && source[i] == scalar)
+			result[j++] = string_nclone(allocator, &source[i++], 1);
+		if (source[i] != '\0')
+			result[j++] = string_substring_scalar(allocator, &source[i], scalar);
+		else
+			break;
+		while (source[i] && source[i] != scalar)
+			++i;
 	}
+	result[j] = NULL;
 	return (result);
 }
 
-char	**string_split_any(t_allocator *const allocator, const char *source,
-		t_bitset const *delimiters)
+char **string_split_any(t_allocator *const allocator, const char *source, t_bitset const *delimiters)
 {
-	char		**result;
-	uint64_t	len;
-	uint64_t	i;
-	uint64_t	j;
+	char   **result;
+	uint64_t size;
+	uint64_t i;
+	uint64_t j;
 
-	if (!source)
-		return (NULL);
-	len = string_wcount_any(source, delimiters) + string_count_any(source,
-			delimiters, string_length(source));
-	result = allocator->create(allocator, (len + 1) * sizeof(char *));
+	size = string_compute_any_split_size(source, delimiters);
+	result = allocator->create(allocator, (size + 1) * sizeof(char *));
 	i = 0;
 	j = 0;
-	while (i < len)
+	while (j < size && source[i])
 	{
-		while (source[j] && bitset_is_set(delimiters, source[j]))
-			result[i++] = string_clone_scalar(allocator, source[j++]);
-		if (source[j])
-			result[i] = string_substring_any(allocator, &source[j], delimiters);
-		j += string_length(result[i++]);
-	}
-	return (result);
-}
-
-char	**string_split_none(t_allocator *const allocator, const char *source,
-		t_bitset const *delimiters)
-{
-	char		**result;
-	uint64_t	len;
-	uint64_t	i;
-	uint64_t	j;
-
-	if (!source)
-		return (NULL);
-	len = string_wcount_none(source, delimiters) + string_count_none(source,
-			delimiters, string_length(source));
-	result = allocator->create(allocator, (len + 1) * sizeof(char *));
-	i = 0;
-	j = 0;
-	while (i < len)
-	{
-		while (source[j] && bitset_is_set(delimiters, source[j]))
-			result[i++] = string_clone_scalar(allocator, source[j++]);
-		if (source[j])
-			result[i] = string_substring_none(allocator, &source[j],
-					delimiters);
-		j += string_length(result[i]);
-		i += 1;
+		while (source[i] && bitset_is_set(delimiters, source[i]))
+			result[j++] = string_nclone(allocator, &source[i++], 1);
+		if (source[i] != '\0')
+			result[j++] = string_substring_any(allocator, &source[i], delimiters);
+		else
+			break;
+		while (source[i] && !bitset_is_set(delimiters, source[i]))
+			++i;
 	}
 	result[i] = NULL;
 	return (result);
 }
 
-char	**string_split_predicate(t_allocator *const allocator,
-		const char *source, bool(predicate)(int32_t ch))
+char **string_split_none(t_allocator *const allocator, const char *source, t_bitset const *delimiters)
 {
-	char		**result;
-	uint64_t	len;
-	uint64_t	i;
-	uint64_t	j;
+	char   **result;
+	uint64_t size;
+	uint64_t i;
+	uint64_t j;
 
-	if (!source)
-		return (NULL);
-	len = string_wcount_predicate(source, predicate)
-		+ string_count_predicate(source, predicate, string_length(source));
-	result = allocator->create(allocator, (len + 1) * sizeof(char *));
+	size = string_compute_none_split_size(source, delimiters);
+	result = allocator->create(allocator, (size + 1) * sizeof(char *));
 	i = 0;
 	j = 0;
-	while (i < len)
+	while (j < size && source[i])
 	{
-		while (source[j] && predicate(source[j]))
-			result[i++] = string_clone_scalar(allocator, source[j++]);
-		if (source[j])
-			result[i] = string_substring_predicate(allocator, &source[j],
-					predicate);
-		j += string_length(result[i]);
-		i += 1;
+		while (source[i] && !bitset_is_set(delimiters, source[i]))
+			result[j++] = string_nclone(allocator, &source[i++], 1);
+		if (source[i] != '\0')
+			result[j++] = string_substring_none(allocator, &source[i], delimiters);
+		else
+			break;
+		while (source[i] && bitset_is_set(delimiters, source[i]))
+			++i;
 	}
 	result[i] = NULL;
 	return (result);
 }
 
-char	**string_split_sequence(t_allocator *const allocator,
-		const char *haystack, const char *needle)
+char **string_split_predicate(t_allocator *const allocator, const char *source, bool(predicate)(int32_t ch))
+{	char   **result;
+	uint64_t size;
+	uint64_t i;
+	uint64_t j;
+
+	size = string_compute_predicate_split_size(source, predicate);
+	result = allocator->create(allocator, (size + 1) * sizeof(char *));
+	i = 0;
+	j = 0;
+	while (j < size && source[i])
+	{
+		while (source[i] && predicate(source[i]))
+			result[j++] = string_nclone(allocator, &source[i++], 1);
+		if (source[i] != '\0')
+			result[j++] = string_substring_predicate(allocator, &source[i], predicate);
+		else
+			break;
+		while (source[i] && !predicate(source[i]))
+			++i;
+	}
+	result[j] = NULL;
+	return (result);
+}
+
+char **string_split_sequence(t_allocator *const allocator, const char *haystack, const char *needle)
 {
-	char		**result;
-	uint64_t	len;
-	uint64_t	nlen;
-	uint64_t	i;
-	uint64_t	j;
+	char   **result;
+	uint64_t size;
+	uint64_t nlen;
+	uint64_t i;
+	uint64_t j;
 
 	nlen = string_length(needle);
-	len = string_wcount_sequence(haystack, needle);
-	len += string_count_sequence(haystack, needle, string_length(haystack));
-	result = allocator->create(allocator, (len + 1) * sizeof(char *));
+	size = string_wcount_sequence(haystack, needle);
+	size += string_count_sequence(haystack, needle, string_length(haystack));
+	result = allocator->create(allocator, (size + 1) * sizeof(char *));
 	i = 0;
 	j = 0;
-	while (i < len)
+	while (i < size && haystack[j])
 	{
 		while (haystack[j] && string_starts_with_sequence(&haystack[j], needle))
 		{
@@ -145,8 +137,7 @@ char	**string_split_sequence(t_allocator *const allocator,
 			j += nlen;
 		}
 		if (haystack[j])
-			result[i] = string_substring_sequence(allocator, &haystack[j],
-					needle);
+			result[i] = string_substring_sequence(allocator, &haystack[j], needle);
 		j += string_length(result[i++]);
 	}
 	return (result);

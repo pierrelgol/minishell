@@ -11,31 +11,56 @@
 # **************************************************************************** #
 
 CC = clang
-CFLAGS = -Wall \
-         -Wextra \
-         -O0 \
-         -g3 \
-         -fno-omit-frame-pointer \
-         -fsanitize=undefined \
-         -fsanitize=address \
-         -ggdb \
-         -Wconversion \
-         -Wdouble-promotion \
-         -Wno-unused-parameter \
-         -Wno-unused-function \
-         -Wno-sign-conversion \
-         -fsanitize=undefined \
-         -fsanitize-trap
+CFLAGS =  -Wall                                     \
+          -Wextra                                   \
+          -Werror                                   \
+          -DDIRECT_IO=1                             \
+          -g3                                       \
+          -march=native                             \
+          -mtune=native                             \
+          -fsanitize=address                        \
+          -fsanitize=undefined                      \
+          -fsanitize=integer                        \
+          -fstrict-overflow                         \
+          -Walloca                                  \
+          -Wformat=2                                \
+          -Wformat-security                         \
+          -Wnull-dereference                        \
+          -Wstack-protector                         \
+          -Wvla                                     \
+          -Wshorten-64-to-32                        \
+          -Warray-bounds                            \
+          -Warray-bounds-pointer-arithmetic         \
+          -Wimplicit-fallthrough                    \
+          -Wloop-analysis                           \
+          -Wshift-sign-overflow                     \
+          -Wswitch-enum                             \
+          -Wtautological-constant-in-range-compare  \
+          -Wcomma                                   \
+          -Wassign-enum                             \
+          -Wfloat-equal                             \
+          -Wformat-type-confusion                   \
+          -Wpointer-arith                           \
+          -Widiomatic-parentheses                   \
+          -Wunreachable-code-aggressive             \
+          -fstack-protector-all                     \
+          -fPIE                                     \
+          -fno-optimize-sibling-calls               \
 
 LIBRARY_DIR = ./library
 LIB_NAME = $(LIBRARY_DIR)/libclib.a
 
+EXE_HEADER_DIR = ./header
+EXE_SOURCE_DIR = source/.                   \
+                 source/core                \
+                 source/builtin             \
+                 source/lexer               \
+                 source/executor            \
+                 source/utils               
 EXE_NAME = minishell
-EXE_HEADER_DIR = header
-EXE_SOURCE_DIRS = ./source
 
-SRCS = $(foreach dir,$(EXE_SOURCE_DIRS),$(wildcard $(dir)/*.c))
-OBJS = $(SRCS:%.c=%.o)
+SRCS = $(foreach dir,$(EXE_SOURCE_DIR),$(wildcard $(dir)/*.c))
+OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean fclean re
 
@@ -56,3 +81,4 @@ fclean: clean
 	make -C $(LIBRARY_DIR) fclean
 
 re: fclean all
+	

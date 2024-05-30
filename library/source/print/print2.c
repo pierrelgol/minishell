@@ -25,7 +25,7 @@ int	put_lowhex32(va_list arg, int fd)
 	uint32_t	num;
 
 	num = va_arg(arg, uint32_t);
-	(void)write(fd, "0x", 2);
+	write(fd, "0x", 2);
 	return (put_unumber_base(num, "0123456789abcdef", 10, fd) + 2);
 }
 
@@ -34,7 +34,7 @@ int	put_upehex32(va_list arg, int fd)
 	uint32_t	num;
 
 	num = va_arg(arg, uint32_t);
-	(void)write(fd, "0x", 2);
+	write(fd, "0x", 2);
 	return (put_unumber_base(num, "0123456789ABCDEF", 10, fd) + 2);
 }
 
@@ -45,7 +45,7 @@ int	put_ptr(va_list arg, int fd)
 	ptr = va_arg(arg, uintptr_t);
 	if (!ptr)
 		return (write(fd, "0x0", 0));
-	(void)write(fd, "0x", 2);
+	write(fd, "0x", 2);
 	return (put_unumber_base(ptr, "0123456789ABCDEF", 10, fd) + 2);
 }
 

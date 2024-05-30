@@ -34,12 +34,12 @@ void *gpa_create(t_allocator *self, uint64_t size)
 	node = NULL;
 	node = mem_node_remove_suitable(&self->freelist, size);
 	if (node && self->logging)
-		print(STDOUT_FILENO, "gc_create(self, %lu) (reuse)\n", size);
+		print(STDOUT_FILENO, "gpa_create(self, %lu) (reuse)\n", size);
 	if (!node)
 	{
 		node = mem_node_create(size, 1);
 		if (self->logging)
-			print(STDOUT_FILENO, "gc_create(self, %lu) (new)\n", size);
+			print(STDOUT_FILENO, "gpa_create(self, %lu) (new)\n", size);
 	}
 	ptr = node->block;
 	node->used = size;

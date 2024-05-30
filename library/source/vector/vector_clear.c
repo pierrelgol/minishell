@@ -3,18 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   vector_clear.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/14 09:00:00 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/14 09:00:01 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/24 20:43:19 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/24 20:43:20 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/clib.h"
-#include <stdint.h>
 
-void	vector_clear(t_vector *self)
+t_vector	*vector_clear(t_vector *vector)
 {
-	self->data = memory_set(self->data, 0x00, self->size * sizeof(uintptr_t));
-	self->count = 0;
+	uint64_t	total_byte_count;
+
+	clib_assert(vector != NULL);
+	total_byte_count = vector->count * sizeof(uintptr_t);
+	memory_set(vector->data, 0x00, total_byte_count);
+	vector->count = 0;
+	return (vector);
 }

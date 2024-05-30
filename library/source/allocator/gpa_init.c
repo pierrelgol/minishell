@@ -17,6 +17,7 @@ t_allocator *gpa_init(void)
 	t_allocator *gpa;
 
 	gpa = memory_alloc(sizeof(t_allocator));
+	gpa->logging = false;
 	gpa->create = gpa_create;
 	gpa->destroy = gpa_destroy;
 	gpa->dup = gpa_dup;
@@ -25,6 +26,5 @@ t_allocator *gpa_init(void)
 	gpa->reserve = gpa_reserve;
 	gpa->usedlist = NULL;
 	gpa->freelist = NULL;
-	gpa->logging = false;
 	return (gpa);
 }

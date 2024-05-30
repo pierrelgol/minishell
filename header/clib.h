@@ -6,7 +6,7 @@
 /*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 12:47:01 by pollivie          #+#    #+#             */
-/*   Updated: 2024/04/08 21:03:52 by pollivie         ###   ########.fr       */
+/*   Updated: 2024/05/26 13:47:41 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#define clib_assert(b) (_clib_assert((b), (char *) __PRETTY_FUNCTION__))
 
 #define NOTFOUND (UINT64_MAX)
 typedef struct s_allocator t_allocator;
@@ -137,12 +139,6 @@ bool is_even(int32_t ch);
 /// is_hex - check if a character is hex
 bool is_hex(int32_t ch);
 
-/// is_identifier - check if a character is identifier
-bool	is_identifier(int32_t ch);
-
-/// is_identifier_start- check if a character is identifier_start
-bool	is_identifier_start(int32_t ch);
-
 /// is_lowercase - check if a character is lowercase
 bool is_lowercase(int32_t ch);
 
@@ -244,6 +240,7 @@ typedef struct s_bitset
 
 void bitset_set_bit(t_bitset *bitset, const uint64_t index, const bool value);
 bool bitset_is_set(const t_bitset *bitset, const uint64_t index);
+t_bitset bitset_set_bit_range(t_bitset *bitset, const char *string);
 t_bitset bitset_init_empty(void);
 t_bitset bitset_init_from_str(const char *string);
 t_bitset bitset_reset(t_bitset *bitset);
@@ -264,6 +261,12 @@ uint64_t string_split_length(const char **split);
 uint64_t string_index_of_difference(const char *s1, const char *s2);
 uint64_t string_compute_replace_sequence_size(const char *haystack, const char *needle, const char *with);
 
+uint64_t string_compute_scalar_split_size(const char *source, const int32_t scalar);
+uint64_t string_compute_any_split_size(const char *source, t_bitset const *delimiters);
+uint64_t string_compute_none_split_size(const char *source, t_bitset const *delimiters);
+uint64_t string_compute_predicate_split_size(const char *source, bool(predicate)(int32_t ch));
+uint64_t string_compute_sequence_split_size(const char *source, const char *needle);
+
 int32_t string_compare(const char *s1, const char *s2);
 int32_t string_ncompare(const char *s1, const char *s2, const uint64_t n);
 int32_t string_casecompare(const char *s1, const char *s2);
@@ -274,6 +277,18 @@ uint64_t string_copy_until_any(char *dest, const char *src, const t_bitset *deli
 uint64_t string_copy_until_none(char *dest, const char *src, const t_bitset *delimiters, const uint64_t destsize);
 uint64_t string_copy_until_predicate(char *dest, const char *src, bool(predicate)(int32_t ch), const uint64_t destsize);
 uint64_t string_copy_until_sequence(char *dest, const char *src, const char *needle, const uint64_t destsize);
+
+bool string_is_all_scalar(const char *source, const int32_t scalar);
+bool string_is_all_any(const char *source, t_bitset const *any);
+bool string_is_all_none(const char *source, t_bitset const *none);
+bool string_is_all_predicate(const char *source, bool(predicate)(int32_t ch));
+bool string_is_all_sequence(const char *source, const char *sequence);
+
+char *string_tokenize_scalar(t_allocator *const allocator, const char *source, const int32_t scalar, const int32_t marker);
+char *string_tokenize_any(t_allocator *const allocator, const char *source, t_bitset const *delimiters, const int32_t marker);
+char *string_tokenize_none(t_allocator *const allocator, const char *source, t_bitset const *delimiters, const int32_t marker);
+char *string_tokenize_predicate(t_allocator *const allocator, const char *source, bool(predicate)(int32_t ch), const int32_t marker);
+char *string_tokenize_sequence(t_allocator *const allocator, const char *haystack, const char *needle, const int32_t marker);
 
 char *string_search_scalar(const char *source, const int32_t scalar, const uint64_t n);
 char *string_search_any(const char *source, t_bitset const *delimiters, const uint64_t n);
@@ -422,12 +437,6 @@ char **string_split_none(t_allocator *const allocator, const char *source, t_bit
 char **string_split_predicate(t_allocator *const allocator, const char *source, bool(predicate)(int32_t ch));
 char **string_split_sequence(t_allocator *const allocator, const char *haystack, const char *needle);
 
-bool string_is_all_scalar(const char *source, const int32_t scalar);
-bool string_is_all_any(const char *source, t_bitset const *any);
-bool string_is_all_none(const char *source, t_bitset const *none);
-bool string_is_all_predicate(const char *source, bool (predicate)(int32_t ch));
-bool string_is_all_sequence(const char *source, const char *sequence);
-
 char *string_to_reverse(char *source);
 char *string_to_uppercase(char *source);
 char *string_to_lowercase(char *source);
@@ -575,59 +584,61 @@ void queue_growth(t_queue *self);
 //                               Vector                                       //
 // ************************************************************************** //
 
+typedef int32_t(t_compare)(uintptr_t v1, uintptr_t v2);
+typedef bool(t_eql)(uintptr_t v1, uintptr_t v2);
+typedef uintptr_t(t_ctor)(t_allocator *allocator, uintptr_t elem);
+typedef void(t_dtor)(t_allocator *allocator, uintptr_t elem);
+
+#define DEFAULT_VECTOR_CAPACITY 32
 typedef struct s_vector
 {
-	uint64_t     size;
+	t_allocator *allocator;
+	uint64_t     capacity;
 	uint64_t     count;
 	uintptr_t   *data;
-	t_allocator *allocator;
 
 } t_vector;
 
-/// vector_create - create a new vector and return a pointer to it
-t_vector *vector_create(t_allocator *allocator, uint64_t size);
-
-/// vector_destroy - destroy a vector
-t_vector *vector_destroy(t_vector *self);
-
-/// vector_resize - resize the vector to new_size
-void vector_resize(t_vector *self, uint64_t new_size);
-
-/// vector_clear - clear the vector and set the count to 0
-void vector_clear(t_vector *self);
-
-/// vector_is_empty - return true if the vector is empty
-bool vector_is_empty(t_vector *self);
-
-/// vector_is_full - return true if the vector is full
-bool vector_is_full(t_vector *self);
-
-/// vector_length - return the length of the vector
-uint64_t vector_length(t_vector *self);
-
-/// vector_push - push data onto the vector
-void vector_push(t_vector *self, uintptr_t data);
-
-/// vector_pop - pop data from the vector
-uintptr_t vector_pop(t_vector *self);
-
-/// vector_peek_at - peek at the index in the vector
-uintptr_t vector_peek_at(t_vector *self, uint64_t index);
-
-/// vector_set_at - set the data at index
-void vector_set_at(t_vector *self, uintptr_t data, uint64_t index);
-
-/// vector_get_at - get the data at index
-uintptr_t vector_get_at(t_vector *self, uint64_t index);
-
-/// vector_insert_at - insert data at index
-uintptr_t vector_insert_at(t_vector *self, uintptr_t data, uint64_t index);
-
-/// vector_remove_at - remove data at index
-uintptr_t vector_remove_at(t_vector *self, uint64_t index);
-
-/// vector_sort - sort the vector using the function f to compare data
-void vector_sort(t_vector *self, int (*f)(uintptr_t d1, uintptr_t d2));
+t_vector *vector_create(t_allocator *allocator);
+t_vector *vector_destroy(t_vector *vector);
+t_vector *vector_clear(t_vector *vector);
+bool      vector_resize(t_vector *vector, uint64_t new_size);
+t_vector *vector_compact(t_vector *vector, uint64_t from);
+t_vector *vector_expand(t_vector *vector, uint64_t at);
+bool      vector_is_empty(t_vector *vector);
+bool      vector_is_full(t_vector *vector);
+bool      vector_insert_at(t_vector *vector, uintptr_t value, uint64_t index);
+bool      vector_insert_back(t_vector *vector, uintptr_t value);
+bool      vector_insert_front(t_vector *vector, uintptr_t value);
+bool vector_insert_after(t_vector *vector, uintptr_t value, uint64_t index);
+uintptr_t  vector_peek_at(t_vector *vector, uint64_t index);
+uintptr_t  vector_peek_back(t_vector *vector);
+uintptr_t  vector_peek_front(t_vector *vector);
+uintptr_t *vector_get_at(t_vector *vector, uint64_t index);
+uintptr_t *vector_get_back(t_vector *vector);
+uintptr_t *vector_get_front(t_vector *vector);
+bool       vector_set_at(t_vector *vector, uintptr_t value, uint64_t index);
+bool       vector_set_back(t_vector *vector, uintptr_t value);
+bool       vector_set_front(t_vector *vector, uintptr_t value);
+bool       vector_remove_at(t_vector *vector, uintptr_t index);
+bool       vector_remove_back(t_vector *vector);
+bool       vector_remove_front(t_vector *vector);
+bool       vector_remove_after(t_vector *vector, uintptr_t index);
+bool vector_copy_from(t_vector *vector, uint64_t offset, uintptr_t *src, uint64_t srcsize);
+bool      vector_copy(t_vector *vector, uintptr_t *src, uint64_t srcsize);
+bool      vector_push(t_vector *vector, uintptr_t elem);
+uintptr_t vector_pop(t_vector *vector);
+bool      vector_enqueue(t_vector *vector, uintptr_t elem);
+uintptr_t vector_dequeue(t_vector *vector);
+t_vector *vector_concat(t_vector *dest, t_vector *src);
+t_vector *vector_join(t_allocator *allocator, t_vector *v1, t_vector *v2);
+uint64_t  vector_count(t_vector *vector);
+uint64_t  vector_capacity(t_vector *vector);
+bool      vector_end_of_vec(t_vector *vector, uint64_t index);
+void      vector_sort(t_vector *vector, t_compare *compare);
+bool      vector_end(t_vector *vector, uint64_t index);
+int64_t vector_index_of(t_vector *vector, uint64_t offset, uintptr_t elem, bool (*eql)(uintptr_t e1, uintptr_t e2));
+void vector_map_dtor(t_vector *vector, t_allocator *allocator, uintptr_t (*dtor)(t_allocator *allocator, uintptr_t elem));
 
 // ***********************************+************************************** //
 //                               Buffer                                       //
@@ -666,28 +677,6 @@ char     *buffer_gets(t_buffer *self, char *dest, uint32_t size);
 char     *buffer_puts(t_buffer *self, char *str);
 void      buffer_compact(t_buffer *self);
 
-// ***********************************+************************************** //
-//                               Scanner                                      //
-// ************************************************************************** //
-
-typedef struct s_scanner
-{
-	const char *stream;
-	int32_t     index;
-	int32_t     size;
-
-} t_scanner;
-
-t_scanner scanner_create(const char *stream);
-char      advance(t_scanner *scanner);
-char      rollback(t_scanner *scanner);
-char      peek(t_scanner *scanner);
-char      next(t_scanner *scanner);
-char      prev(t_scanner *scanner);
-bool      match(t_scanner *scanner, bool (*f)(int32_t));
-char      skip(t_scanner *scanner, bool (*f)(int32_t));
-bool      is_eof(t_scanner *scanner);
-
 /******************************************************************************/
 /*                                Table                                       */
 /******************************************************************************/
@@ -721,76 +710,6 @@ void      table_body_remove(t_table *self, char *key);
 void      table_body_resize(t_table *self, uint64_t capacity);
 uint64_t  table_body_find_empty(t_table *self, char *key);
 
-/******************************************************************************/
-/*                                file                                        */
-/******************************************************************************/
-
-#define LINE_SIZE 128
-
-typedef struct s_file
-{
-	int32_t      fd;
-	int32_t      mode;
-	uint32_t     flag;
-	uint64_t     size;
-	uint64_t     pos;
-	uint64_t     r;
-	uint64_t     w;
-	bool         is_open;
-	bool         buffered_io;
-	char        *path;
-	char        *basename;
-	t_buffer    *buffer;
-	t_allocator *allocator;
-
-} t_file;
-
-t_file  *file_create(t_allocator *allocator, bool is_cached);
-t_file  *file_destroy(t_file *self);
-uint64_t file_fsize(char *path, char *mode);
-int32_t  file_mode(char *mode);
-t_file  *file_get_stdout(t_allocator *allocator);
-t_file  *file_get_stdin(t_allocator *allocator);
-t_file  *file_get_stderr(t_allocator *allocator);
-bool     file_fopen(t_file *self, char *path, char *mode);
-bool     file_fclose(t_file *self);
-int32_t  file_getch(t_file *self);
-int32_t  file_putch(t_file *self, char ch);
-char    *file_gets(t_file *self);
-uint64_t file_puts(t_file *self, char *str);
-int32_t  file_read(t_file *self, char *buffer, uint32_t size);
-int32_t  file_write(t_file *self, char *buffer, uint32_t size);
-t_file  *file_open_cache_all(t_allocator *allocator, char *path, char *mode);
-
-// ***********************************+************************************** //
-//                            fstack                                          //
-// ************************************************************************** //
-
-typedef struct s_fstack
-{
-	char    *data;
-	uint32_t size;
-	uint32_t top;
-} t_fstack;
-
-t_fstack fstack_create(char *data, uint32_t size);
-char     fstack_push(t_fstack *self, char value);
-char     fstack_pop(t_fstack *self);
-
-// ***********************************+************************************** //
-//                           fqueue                                          //
-// ************************************************************************** //
-
-typedef struct s_fqueue
-{
-	char    *data;
-	uint32_t size;
-} t_fqueue;
-
-t_fqueue fqueue_create(char *data, uint32_t size);
-char     fqueue_enqueue(t_fqueue *self, char value);
-char     fqueue_dequeue(t_fqueue *self);
-
 // ***********************************+************************************** //
 //                           print                                            //
 // ************************************************************************** //
@@ -819,6 +738,42 @@ t_printer print_fmt_parser(const char *fmt);
 int32_t   arg_len(const char *fmt);
 int32_t   print(int fd, const char *fmt, ...);
 
+// misc
+
+void _clib_assert(bool condition, char *func);
+
+typedef struct s_iterator
+{
+	t_allocator *allocator;
+	t_vector    *vec;
+	t_dtor      *dtor;
+	uint64_t     index;
+	uint64_t     saved;
+} t_iterator;
+
+t_iterator *it_create(t_allocator *allocator);
+t_iterator *it_init_with_split(t_iterator *self, char **split);
+t_iterator *it_init_with_list(t_iterator *self, t_list *list);
+t_iterator *it_init_with_vector(t_iterator *self, t_vector *vector);
+t_iterator *it_set_dtor(t_iterator *self, t_dtor *dtor);
+
+uintptr_t it_next(t_iterator *self);
+uintptr_t it_insert_front(t_iterator *self, uintptr_t elem);
+uintptr_t it_remove_front(t_iterator *self);
+uintptr_t it_prev(t_iterator *self);
+uintptr_t it_match(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+bool      it_contains_matching(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+uintptr_t it_peekcurr(t_iterator *self);
+uintptr_t it_peeknext(t_iterator *self);
+uintptr_t it_peekprev(t_iterator *self);
+bool      it_end(t_iterator *self);
+bool      it_reset(t_iterator *self);
+uint64_t it_skip(t_iterator *self, uintptr_t elem, bool(compare)(uintptr_t e1, uintptr_t e2));
+
+t_iterator *it_deinit(t_iterator *self);
+bool        it_save(t_iterator *self);
+bool        it_restore(t_iterator *self);
+t_iterator *it_destroy(t_iterator *self);
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m"
@@ -829,5 +784,6 @@ int32_t   print(int fd, const char *fmt, ...);
 #define MAGENTA "\033[35m"
 #define CYAN "\033[36m"
 #define WHITE "\033[37m"
+
 
 #endif

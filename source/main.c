@@ -1,17 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/22 04:00:46 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/22 04:00:47 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/25 12:22:31 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/25 12:22:32 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../header/c-stacktrace.h"
 #include "../header/minishell.h"
+#include "../header/c-stacktrace.h"
+
+int64_t g_signal = SH_SIG_WORK;
 
 int main(int argc, char **argv, char **envp)
 {
@@ -21,7 +23,14 @@ int main(int argc, char **argv, char **envp)
 	init_exceptions(argv[0]);
 	allocator = gpa_init();
 	shell = shell_create(allocator, argc, argv, envp);
-	shell_run(shell);
-	shell = shell_destroy(shell);
+	while (signal_get() != SH_SIG_DONE)
+	{
+		shell_init(allocator, shell);
+		shell_main(allocator, shell);
+		shell_deinit(allocator, shell);
+	}
+	// shell = shell_destroy(allocator, shell);
+	allocator = gpa_deinit(allocator);
 	return (0);
 }
+
