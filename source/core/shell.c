@@ -5,104 +5,31 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/25 12:30:24 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/25 12:30:24 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 13:29:40 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 13:29:41 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../header/minishell.h"
 
-t_shell *shell_create(t_allocator *allocator, int32_t argc, char **argv, char **envp)
+t_shell *shell_create(int32_t argc, char **argv, char **envp)
 {
 	t_shell *self;
 
-	assert(allocator != NULL);
-	self = allocator->create(allocator, sizeof(*self));
-	assert(self != NULL);
-	self->allocator = allocator;
+	self = (t_shell *) memory_alloc(sizeof(t_shell));
+	if (!self)
+		return (NULL);
 	self->argc = argc;
 	self->argv = argv;
 	self->envp = envp;
-	self->sh_env = shell_env_create(allocator);
-	self->sh_prompt = shell_prompt_create(allocator, self->sh_env);
-	self->sh_input = shell_input_create(allocator, self, self->sh_prompt);
-	self->sh_tokenizer = shell_tokenizer_create(allocator, self->sh_input, " \t\n");
-	self->sh_lexer = shell_lexer_create(allocator, self->sh_tokenizer);
-	self->sh_linker = shell_linker_create(allocator, self->sh_env, self->sh_lexer);
-	// self->blt_cd = builtin_cd_create(allocator);
-	// self->blt_env = builtin_env_create(allocator);
-	// self->blt_pwd = builtin_pwd_create(allocator);
-	// self->blt_echo = builtin_echo_create(allocator);
-	// self->blt_exit = builtin_exit_create(allocator);
-	// self->blt_unset = builtin_unset_create(allocator);
-	// self->blt_export = builtin_export_create(allocator);
-	shell_env_init(allocator, self->sh_env, self->envp);
 	return (self);
 }
 
-void shell_init(t_allocator *allocator, t_shell *self)
+t_shell *shell_destroy(t_shell *self)
 {
-	shell_prompt_init(allocator, self->sh_prompt);
-	shell_input_init(allocator, self->sh_input);
-	shell_tokenizer_init(allocator, self->sh_tokenizer);
-	shell_lexer_init(allocator, self->sh_lexer);
-	shell_linker_init(allocator, self->sh_linker);
-	// builtin_cd_init(allocator, self->blt_cd);
-	// builtin_env_init(allocator, self->blt_env);
-	// builtin_pwd_init(allocator, self->blt_pwd);
-	// builtin_echo_init(allocator, self->blt_echo);
-	// builtin_exit_init(allocator, self->blt_exit);
-	// builtin_unset_init(allocator, self->blt_unset);
-	// builtin_export_init(allocator, self->blt_export);
-}
-
-void shell_main(t_allocator *allocator, t_shell *self)
-{
-	char *line;
-
-	(void)allocator;
-	line = shell_input_get(self->sh_input);
-	if (!line)
-		signal_set(SH_SIG_DONE);
-	else
+	if (self)
 	{
-		// shell_env_print(self->sh_env);
-		shell_prompt_print(self->sh_prompt);
-		shell_input_print(self->sh_input);
-		shell_tokenizer_print(self->sh_tokenizer);
-		shell_lexer_print(self->sh_lexer);
-		shell_linker_print(self->sh_linker);
-		// print(1, "%s\n", line);
+		memory_dealloc(self);
 	}
-}
-void shell_deinit(t_allocator *allocator, t_shell *self)
-{
-	assert(allocator != NULL);
-	assert(self != NULL);
-	shell_prompt_deinit(allocator, self->sh_prompt);
-	shell_input_deinit(allocator, self->sh_input);
-	shell_tokenizer_deinit(allocator, self->sh_tokenizer);
-	shell_lexer_deinit(allocator, self->sh_lexer);
-	shell_linker_deinit(allocator, self->sh_linker);
-}
-
-t_shell *shell_destroy(t_allocator *allocator, t_shell *self)
-{
-	assert(self != NULL);
-	assert(allocator != NULL);
-	shell_env_destroy(allocator, self->sh_env);
-	shell_prompt_destroy(allocator, self->sh_prompt);
-	shell_input_destroy(allocator, self->sh_input);
-	shell_tokenizer_destroy(allocator, self->sh_tokenizer);
-	shell_lexer_destroy(allocator, self->sh_lexer);
-	shell_linker_destroy(allocator, self->sh_linker);
-	// builtin_cd_destroy(allocator, self->blt_cd);
-	// builtin_env_destroy(allocator, self->blt_env);
-	// builtin_pwd_destroy(allocator, self->blt_pwd);
-	// builtin_echo_destroy(allocator, self->blt_echo);
-	// builtin_exit_destroy(allocator, self->blt_exit);
-	// builtin_unset_destroy(allocator, self->blt_unset);
-	// builtin_export_destroy(allocator, self->blt_export);
-	allocator->destroy(allocator, self);
 	return (NULL);
 }

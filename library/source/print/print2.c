@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   print2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/26 10:36:53 by pollivie          #+#    #+#             */
-/*   Updated: 2024/04/26 10:36:54 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 12:32:50 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 12:32:50 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
 int	put_uint32(va_list arg, int fd)
 {

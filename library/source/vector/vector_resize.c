@@ -5,30 +5,28 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:33:17 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:33:18 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 11:05:32 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 11:05:32 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-bool vector_resize(t_vector *vector, uint64_t new_capacity)
+bool	vector_resize(t_vector *self, const uint64_t new_capacity)
 {
-	t_allocator *allocator;
-	uintptr_t   *new_data;
+	uintptr_t	*old_data;
+	uint64_t	old_capacity;
 
-	clib_assert(vector != NULL);
-	clib_assert(new_capacity != 0);
-	allocator = vector->allocator;
-	clib_assert(allocator != NULL);
-	new_data = allocator->create(allocator, new_capacity * sizeof(uintptr_t));
-	clib_assert(new_data != NULL);
-	if (new_capacity < vector->capacity)
-		memory_copy(new_data, vector->data, new_capacity * sizeof(uintptr_t));
-	else
-		memory_copy(new_data, vector->data, vector->count * sizeof(uintptr_t));
-	allocator->destroy(allocator, vector->data);
-	vector->data = new_data;
-	vector->capacity = new_capacity;
+	old_capacity = self->count;
+	old_data = self->data;
+	self->data = (uintptr_t *)memory_alloc(new_capacity * sizeof(uintptr_t));
+	if (!self->data)
+	{
+		self->data = old_data;
+		return (false);
+	}
+	memory_copy(self->data, old_data, old_capacity * sizeof(uintptr_t));
+	self->capacity = new_capacity;
+	memory_dealloc(old_data);
 	return (true);
 }

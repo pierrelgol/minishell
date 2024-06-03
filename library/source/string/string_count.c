@@ -5,113 +5,57 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/06 14:27:16 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/06 14:27:18 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 11:40:04 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 11:40:04 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-uint64_t	string_count_scalar(const char *source, const int32_t scalar,
-		const uint64_t n)
+uint64_t	string_count(const char *const source, const char *const delimiters)
 {
-	uint64_t	count;
+	char		*set;
+	uint64_t	result;
 	uint64_t	i;
 
-	if (!source || !n)
+	set = (char[256]){0};
+	if (!source || !delimiters)
 		return (0);
 	i = 0;
-	count = 0;
-	while (source[i] && i < n)
+	while (*(delimiters + i))
 	{
-		if (source[i] == scalar)
-			count += 1;
-		++i;
+		set[(uint64_t) * (delimiters + i)] = 1;
+		i += 1;
 	}
-	return (count);
+	i = 0;
+	result = 0;
+	while (*(source + i))
+	{
+		if (set[(uint64_t) * (source + i)] == 1)
+			result += 1;
+		i += 1;
+	}
+	return (result);
 }
 
-uint64_t	string_count_any(const char *source, t_bitset const *delimiters,
-		const uint64_t n)
+uint64_t	string_wcount(const char *const source,
+		const char *const delimiters)
 {
 	uint64_t	count;
+	uint64_t	slen;
 	uint64_t	i;
 
-	if (!source || !n)
+	if (!source || !delimiters)
 		return (0);
 	i = 0;
+	slen = string_length(source);
 	count = 0;
-	while (source[i] && i < n)
+	while (i < slen)
 	{
-		if (bitset_is_set(delimiters, source[i]))
+		i += string_span(source + i, delimiters);
+		if (i < slen)
 			count += 1;
-		++i;
-	}
-	return (count);
-}
-
-uint64_t	string_count_none(const char *source, t_bitset const *delimiters,
-		const uint64_t n)
-{
-	uint64_t	count;
-	uint64_t	i;
-
-	if (!source || !n)
-		return (0);
-	i = 0;
-	count = 0;
-	while (source[i] && i < n)
-	{
-		if (!bitset_is_set(delimiters, source[i]))
-			count += 1;
-		++i;
-	}
-	return (count);
-}
-
-uint64_t	string_count_predicate(const char *source,
-		bool(predicate)(int32_t ch), const uint64_t n)
-{
-	uint64_t	count;
-	uint64_t	i;
-
-	if (!source || !n)
-		return (0);
-	i = 0;
-	count = 0;
-	while (source[i] && i < n)
-	{
-		if (predicate(source[i]))
-			count += 1;
-		++i;
-	}
-	return (count);
-}
-
-uint64_t	string_count_sequence(const char *haystack, const char *needle,
-		const uint64_t n)
-{
-	uint64_t	u1;
-	uint64_t	u2;
-	uint64_t	count;
-
-	if (!haystack)
-		return (0);
-	if (needle[0] == '\0')
-		return (0);
-	u1 = 0;
-	count = 0;
-	while (haystack[u1])
-	{
-		u2 = 0;
-		while (haystack[u1] && haystack[u1] == needle[u2] && u1 < n)
-		{
-			u2++;
-			u1++;
-		}
-		if (!needle[u2])
-			count += 1;
-		u1 = (u1 - u2) + 1;
+		i += string_cspan(source + i, delimiters);
 	}
 	return (count);
 }

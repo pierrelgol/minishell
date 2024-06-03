@@ -3,28 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   memory_copy.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 11:02:05 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 11:02:05 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 09:08:39 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 09:08:40 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	*memory_copy(void *dst, const void *src, uint64_t n)
+void	*memory_copy(void *const dest, const void *const source,
+		const uint64_t bytes)
 {
-	uint64_t		i;
-	unsigned char	*s;
-	unsigned char	*d;
+	uint64_t	i;
 
+	const uint8_t *const sptr = (const uint8_t *const)source;
+	uint8_t *const dptr = (uint8_t *const)dest;
+	if (!dest && !source)
+		return (NULL);
 	i = 0;
-	d = (unsigned char *)dst;
-	s = (unsigned char *)src;
-	while (i < n)
+	while (i < bytes)
 	{
-		*(d + i) = *(s + i);
-		++i;
+		*(dptr + i) = *(sptr + i);
+		i += 1;
 	}
-	return (dst);
+	return (dest);
 }

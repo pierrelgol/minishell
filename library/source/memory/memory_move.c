@@ -3,34 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   memory_move.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 11:33:14 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 11:33:15 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 09:02:33 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 09:02:33 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	*memory_move(void *dst, const void *src, uint64_t len)
+void	*memory_move(void *const dest, const void *const source,
+		const uint64_t bytes)
 {
-	const char	*ptr_src;
-	char		*ptr_dst;
+	uint64_t	i;
 
-	ptr_src = (const char *)src;
-	ptr_dst = (char *)dst;
-	if (!dst && !src)
+	const uint8_t *const sptr = (const uint8_t *const)source;
+	uint8_t *const dptr = (uint8_t *const)dest;
+	if (!dest && !source)
 		return (NULL);
-	if (dst > src)
+	i = bytes;
+	if (dest > source)
 	{
-		while (len)
+		while (i != 0)
 		{
-			*(ptr_dst + len - 1) = *(ptr_src + len - 1);
-			len--;
+			*(dptr + i - 1) = *(sptr + i - 1);
+			i -= 1;
 		}
-		return (dst);
+		return (dest);
 	}
-	while (len--)
-		*ptr_dst++ = *ptr_src++;
-	return (dst);
+	while (i != 0)
+	{
+		*(dptr + (bytes - i)) = *(sptr + (bytes - i));
+		i -= 1;
+	}
+	return (dest);
 }

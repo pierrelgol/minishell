@@ -3,30 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   memory_ccopy.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 11:16:31 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 11:17:38 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 11:33:34 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 11:33:44 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	*memory_ccopy(void *dst, const void *src, int32_t c, uint64_t n)
+void	*memory_ccopy(void *const dest, const int32_t byte,
+		const void *const source, const uint64_t dsize)
 {
-	uint64_t		i;
-	unsigned char	*s;
-	unsigned char	*d;
+	const uint8_t	b = (const uint8_t)byte;
+	uint8_t			i;
 
+	const uint8_t *const sptr = (const uint8_t *const)source;
+	uint8_t *const dptr = (uint8_t *const)dest;
 	i = 0;
-	d = (unsigned char *)dst;
-	s = (unsigned char *)src;
-	while (i < n)
+	while (i < dsize)
 	{
-		if (*(s + i) == (uint8_t)c)
-			return (s + i + 1);
-		*(d + i) = *(s + i);
+		if (*(sptr + i) == b)
+			return ((void *)(source + i + 1));
+		*(dptr + i) = *(sptr + i);
 		++i;
 	}
-	return (0);
+	return (NULL);
 }

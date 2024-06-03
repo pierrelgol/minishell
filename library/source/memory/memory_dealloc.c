@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   memory_dealloc.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 11:24:17 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 11:24:18 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 11:00:29 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 11:00:30 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	memory_dealloc(void *ptr)
+void	memory_dealloc(void *const ptr)
 {
 	free(ptr);
 }
