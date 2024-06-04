@@ -12,44 +12,46 @@
 
 #include "../../header/minishell.h"
 
-char *hashmap_del(t_hashmap *self, char *key)
+char	*hashmap_del(t_hashmap *self, char *key)
 {
-	t_hashmap_entry  temp_entry;
-	t_hashmap_entry *entry;
-	char            *value;
-	int64_t          index;
+	t_hashmap_entry	temp_entry;
+	t_hashmap_entry	*entry;
+	char			*value;
+	int64_t			index;
 
 	if (!self || !key)
 		return (NULL);
 	temp_entry = (t_hashmap_entry){.key = key, .val = NULL};
-	index = vector_search(self->bucket, (uintptr_t) &temp_entry, hashmap_entry_compare);
+	index = vector_search(self->bucket, (uintptr_t)&temp_entry,
+			hashmap_entry_compare);
 	if (index == -1)
 		return (NULL);
-	entry = (t_hashmap_entry *) vector_remove_at(self->bucket, index);
+	entry = (t_hashmap_entry *)vector_remove_at(self->bucket, index);
 	if (!entry)
 		return (NULL);
 	value = string_clone(entry->val);
 	hashmap_entry_destroy(entry);
 	self->count--;
-	return value;
+	return (value);
 }
 
-bool hashmap_put(t_hashmap *self, const char *const key, const char *const value)
+bool	hashmap_put(t_hashmap *self, const char *const key,
+		const char *const value)
 {
-	t_hashmap_entry *new_entry;
-	char            *existing_value;
-	bool             result;
+	t_hashmap_entry	*new_entry;
+	char			*existing_value;
+	bool			result;
 
 	if (!self || !key || !value)
 		return (false);
-	existing_value = hashmap_get(self, (char *) key);
+	existing_value = hashmap_get(self, (char *)key);
 	if (existing_value)
-		hashmap_del(self, (char *) key);
+		hashmap_del(self, (char *)key);
 	new_entry = hashmap_entry_create(key, value);
 	if (!new_entry)
 		return (false);
-
-	result = vector_insert_sorted(self->bucket, (uintptr_t) new_entry, hashmap_entry_compare);
+	result = vector_insert_sorted(self->bucket, (uintptr_t)new_entry,
+			hashmap_entry_compare);
 	if (result)
 		self->count++;
 	else
@@ -57,22 +59,22 @@ bool hashmap_put(t_hashmap *self, const char *const key, const char *const value
 	return (result);
 }
 
-bool hashmap_is_empty(t_hashmap *self)
+bool	hashmap_is_empty(t_hashmap *self)
 {
 	return (self && self->count == 0);
 }
 
-t_hashmap *hashmap_destroy_entries(t_hashmap *self)
+t_hashmap	*hashmap_destroy_entries(t_hashmap *self)
 {
-	t_hashmap_entry *entry;
-	uint64_t         i;
+	t_hashmap_entry	*entry;
+	uint64_t		i;
 
 	if (!self)
 		return (NULL);
 	i = 0;
 	while (i < self->bucket->count)
 	{
-		entry = (t_hashmap_entry *) vector_get_at(self->bucket, i);
+		entry = (t_hashmap_entry *)vector_get_at(self->bucket, i);
 		hashmap_entry_destroy(entry);
 		i += 1;
 	}
@@ -80,7 +82,7 @@ t_hashmap *hashmap_destroy_entries(t_hashmap *self)
 	return (self);
 }
 
-t_hashmap *hashmap_destroy(t_hashmap *self)
+t_hashmap	*hashmap_destroy(t_hashmap *self)
 {
 	if (!self)
 		return (NULL);

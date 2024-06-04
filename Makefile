@@ -32,9 +32,11 @@ LIB_NAME = $(LIBRARY_DIR)/libslib.a
 EXE_HEADER_DIR = ./header
 EXE_SOURCE_DIRS = source/.                   \
                   source/core                \
+                  source/environment         \
                   source/hashmap             \
+                  source/input               \
                   source/lexer               \
-                  source/executor            \
+                  source/prompt              \
                   source/utils               
 ODIR = ./build
 

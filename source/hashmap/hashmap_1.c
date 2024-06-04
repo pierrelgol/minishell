@@ -12,11 +12,12 @@
 
 #include "../../header/minishell.h"
 
-t_hashmap_entry *hashmap_entry_create(const char *const key, const char *const value)
+t_hashmap_entry	*hashmap_entry_create(const char *const key,
+		const char *const value)
 {
-	t_hashmap_entry *entry;
+	t_hashmap_entry	*entry;
 
-	entry = (t_hashmap_entry *) memory_alloc(sizeof(t_hashmap_entry));
+	entry = (t_hashmap_entry *)memory_alloc(sizeof(t_hashmap_entry));
 	if (!entry)
 		return (NULL);
 	entry->key = string_clone(key);
@@ -33,17 +34,17 @@ t_hashmap_entry *hashmap_entry_create(const char *const key, const char *const v
 	return (entry);
 }
 
-int64_t hashmap_entry_compare(uintptr_t a, uintptr_t b)
+int64_t	hashmap_entry_compare(uintptr_t a, uintptr_t b)
 {
-	t_hashmap_entry *entry_a;
-	t_hashmap_entry *entry_b;
+	t_hashmap_entry	*entry_a;
+	t_hashmap_entry	*entry_b;
 
-	entry_a = (t_hashmap_entry *) a;
-	entry_b = (t_hashmap_entry *) b;
-	return string_compare(entry_a->key, entry_b->key);
+	entry_a = (t_hashmap_entry *)a;
+	entry_b = (t_hashmap_entry *)b;
+	return (string_compare(entry_a->key, entry_b->key));
 }
 
-t_hashmap_entry *hashmap_entry_destroy(t_hashmap_entry *self)
+t_hashmap_entry	*hashmap_entry_destroy(t_hashmap_entry *self)
 {
 	if (self)
 	{
@@ -56,14 +57,13 @@ t_hashmap_entry *hashmap_entry_destroy(t_hashmap_entry *self)
 	return (NULL);
 }
 
-t_hashmap *hashmap_create(const uint64_t capacity)
+t_hashmap	*hashmap_create(const uint64_t capacity)
 {
-	t_hashmap *self;
+	t_hashmap	*self;
 
-	self = (t_hashmap *) memory_alloc(sizeof(t_hashmap));
+	self = (t_hashmap *)memory_alloc(sizeof(t_hashmap));
 	if (!self)
 		return (NULL);
-
 	self->bucket = vector_create_with_capacity(capacity);
 	if (!self->bucket)
 	{
@@ -75,19 +75,20 @@ t_hashmap *hashmap_create(const uint64_t capacity)
 	return (self);
 }
 
-char *hashmap_get(t_hashmap *self, char *key)
+char	*hashmap_get(t_hashmap *self, char *key)
 {
-	t_hashmap_entry  temp_entry;
-	t_hashmap_entry *entry;
-	int64_t          index;
+	t_hashmap_entry	temp_entry;
+	t_hashmap_entry	*entry;
+	int64_t			index;
 
 	if (!self || !key)
 		return (NULL);
 	temp_entry = (t_hashmap_entry){.key = key, .val = NULL};
-	index = vector_search(self->bucket, (uintptr_t) &temp_entry, hashmap_entry_compare);
+	index = vector_search(self->bucket, (uintptr_t)&temp_entry,
+			hashmap_entry_compare);
 	if (index == -1)
 		return (NULL);
-	entry = (t_hashmap_entry *) vector_get_at(self->bucket, index);
+	entry = (t_hashmap_entry *)vector_get_at(self->bucket, index);
 	if (!entry)
 		return (NULL);
 	return (entry->val);
