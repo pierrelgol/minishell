@@ -13,14 +13,38 @@
 #include "../header/c-stacktrace.h"
 #include "../header/minishell.h"
 
+void hashmap_test(t_hashmap *map, char **envp)
+{
+	uint64_t idx;
+	uint64_t i;
+	char    *k;
+	char    *v;
+
+	i = 0;
+	while (envp[i])
+	{
+		idx = string_index_of(envp[i], '=');
+		k = string_nclone(envp[i], idx);
+		v = string_clone(&envp[i][idx + 1]);
+		hashmap_put(map, k, v);
+		memory_dealloc(k);
+		memory_dealloc(v);
+		i += 1;
+	}
+	char *temp = hashmap_get(map, "PATH");
+	printf("PATH=%s\n", temp);
+}
+
 int main(int argc, char **argv, char **envp)
 {
-	t_shell *shell;
+	t_shell   *shell;
+	t_hashmap *map;
 
 	init_exceptions(argv[0]);
 	shell = shell_create(argc, argv, envp);
-	if (!shell)
-		abort();
+	map = hashmap_create(100);
+	hashmap_test(map, envp);
+	map = hashmap_destroy(map);
 	shell = shell_destroy(shell);
 	return (0);
 }

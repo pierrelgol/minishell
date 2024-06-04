@@ -114,6 +114,7 @@ int32_t   fprint(int32_t fd, const char *fmt, ...);
 #endif
 typedef struct s_vector
 {
+	uint64_t   is_sorted;
 	uint64_t   capacity;
 	uint64_t   count;
 	uint64_t   index;
@@ -122,6 +123,7 @@ typedef struct s_vector
 
 } t_vector;
 
+t_vector *vector_create_with_capacity(const uint64_t capacity);
 t_vector *vector_create(void);
 bool      vector_resize(t_vector *self, const uint64_t new_capacity);
 void      vector_clear(t_vector *self);
@@ -142,6 +144,9 @@ uintptr_t vector_get_at(t_vector *vector, const uint64_t index);
 void      vector_set_at(t_vector *vector, uintptr_t elem, const uint64_t index);
 bool      vector_is_full(t_vector *self);
 bool      vector_is_empty(t_vector *self);
+void      vector_sort(t_vector *self, int64_t(cmp)(uintptr_t a, uintptr_t b));
+int64_t vector_search(t_vector *self, uintptr_t elem, int64_t(cmp)(uintptr_t a, uintptr_t b));
+bool vector_insert_sorted(t_vector *self, uintptr_t elem, int64_t(cmp)(uintptr_t a, uintptr_t b));
 
 void it_restore(t_vector *self);
 void it_advance(t_vector *self);
@@ -154,10 +159,10 @@ uintptr_t it_peek_prev(t_vector *self);
 void      it_save(t_vector *self);
 bool      it_end(t_vector *self);
 
-char	**split_create(const uint64_t size);
+char   **split_create(const uint64_t size);
 uint64_t split_size(char **split);
 uint64_t split_length(char **split);
-char	**split_destroy(char **split);
-char **split(const char *source, const char *delimiters);
+char   **split_destroy(char **split);
+char   **split(const char *source, const char *delimiters);
 
 #endif

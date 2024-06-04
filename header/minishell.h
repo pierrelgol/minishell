@@ -19,20 +19,33 @@
 
 typedef struct s_shell t_shell;
 
-typedef struct s_hashmap t_hashmap;
+typedef struct s_hashmap_entry t_hashmap_entry;
+typedef struct s_hashmap       t_hashmap;
+
+struct s_hashmap_entry
+{
+	char *key;
+	char *val;
+};
+
+t_hashmap_entry *hashmap_entry_create(const char *const key, const char *const value);
+int64_t          hashmap_entry_compare(uintptr_t a, uintptr_t b);
+t_hashmap_entry *hashmap_entry_destroy(t_hashmap_entry *self);
 
 struct s_hashmap
 {
 	uint64_t  capacity;
 	uint64_t  count;
-	t_vector *k_bucket;
-	t_vector *v_bucket;
+	t_vector *bucket;
 };
 
 t_hashmap *hashmap_create(const uint64_t capacity);
-uint64_t   hashmap_find_capacity(const uint64_t capacity);
+char      *hashmap_get(t_hashmap *self, char *key);
+char      *hashmap_del(t_hashmap *self, char *key);
+bool 	  hashmap_put(t_hashmap *self, const char *const key, const char *const value);
+bool	  hashmap_is_empty(t_hashmap *self);
+t_hashmap *hashmap_destroy_entries(t_hashmap *self);
 t_hashmap *hashmap_destroy(t_hashmap *self);
-uint64_t   hashmap_hash(char *str);
 
 struct s_shell
 {
