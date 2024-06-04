@@ -65,6 +65,7 @@ struct s_shell
 	t_environment *env;
 	t_input       *input;
 	t_tokenizer   *tokenizer;
+	t_lexer       *lexer;
 	t_prompt      *prompt;
 };
 
@@ -158,15 +159,14 @@ t_token     *token_destroy(t_token *self);
 
 struct s_tokenizer
 {
+	t_vector *output;
 	char     *input;
 	char     *delim;
-	t_vector *output;
 	bool      is_dirty;
 };
 
 t_tokenizer *tokenizer_create();
-t_tokenizer *tokenizer_init(t_tokenizer *self, char *input, char *delim);
-t_vector    *tokenizer_lex(t_tokenizer *self);
+t_vector    *tokenizer_tokenize(t_tokenizer *self, char *input, char *delim);
 t_tokenizer *tokenizer_clear(t_tokenizer *self);
 t_tokenizer *tokenizer_destroy(t_tokenizer *self);
 
@@ -175,6 +175,35 @@ struct s_lexer
 	t_environment *env;
 	t_tokenizer   *tokenizer;
 	t_vector      *token_vector;
+	bool	is_dirty;
 };
+
+t_lexer  *lexer_create(t_environment *env, t_tokenizer *tokenizer);
+t_vector *lexer_lex(t_lexer *self, t_vector *input);
+
+void	lexer_identify_all_whitespaces(t_lexer *self, t_vector *it);
+void	lexer_identify_all_builtins(t_lexer *self, t_vector *it);
+void	lexer_identify_all_variables(t_lexer *self, t_vector *it);
+void	lexer_identify_all_commands(t_lexer *self, t_vector *it);
+void	lexer_identify_all_terminals(t_lexer *self, t_vector *it);
+
+void	lexer_identify_all_quotes(t_lexer *self, t_vector *it);
+void	lexer_identify_all_assignments(t_lexer *self, t_vector *it);
+void	lexer_identify_all_arguments(t_lexer *self, t_vector *it);
+void	lexer_identify_all_path(t_lexer *self, t_vector *it);
+void	lexer_identify_all_redirect(t_lexer *self, t_vector *it);
+
+void	lexer_identify_all_boolean(t_lexer *self, t_vector *it);
+void	lexer_identify_all_files(t_lexer *self, t_vector *it);
+void	lexer_identify_all_keywords(t_lexer *self, t_vector *it);
+void	lexer_identify_all_identifiers(t_lexer *self, t_vector *it);
+void	lexer_identify_all_operators(t_lexer *self, t_vector *it);
+
+void	lexer_identify_all_punctuators(t_lexer *self, t_vector *it);
+void	lexer_identify_all_string_litterals(t_lexer *self, t_vector *it);
+void	lexer_identify_all_expansions(t_lexer *self, t_vector *it);
+
+t_lexer  *lexer_clear(t_lexer *self);
+t_lexer  *lexer_destroy(t_lexer *self);
 
 #endif

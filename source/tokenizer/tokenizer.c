@@ -31,20 +31,14 @@ t_tokenizer *tokenizer_create(void)
 	return (self);
 }
 
-t_tokenizer *tokenizer_init(t_tokenizer *self, char *input, char *delim)
-{
-	self->delim = string_clone(delim);
-	self->input = string_clone(input);
-	self->is_dirty = true;
-	return (self);
-}
-
-t_vector *tokenizer_lex(t_tokenizer *self)
+t_vector *tokenizer_tokenize(t_tokenizer *self, char *input, char *delim)
 {
 	char   **temp;
 	t_token *token;
 	uint64_t i;
 
+	self->delim = string_clone(delim);
+	self->input = string_clone(input);
 	temp = split(self->input, self->delim);
 	if (!temp)
 		return (NULL);
