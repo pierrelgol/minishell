@@ -35,7 +35,8 @@ EXE_SOURCE_DIRS = source/.                   \
                   source/environment         \
                   source/hashmap             \
                   source/input               \
-                  source/lexer               \
+                  source/tokenizer           \
+                  source/token               \
                   source/prompt              \
                   source/utils               
 ODIR = ./build

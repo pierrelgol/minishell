@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer.c                                            :+:      :+:    :+:   */
+/*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,11 +12,11 @@
 
 #include "../../header/minishell.h"
 
-t_lexer	*lexer_create(void)
+t_tokenizer *tokenizer_create(void)
 {
-	t_lexer	*self;
+	t_tokenizer *self;
 
-	self = memory_alloc(sizeof(t_lexer));
+	self = memory_alloc(sizeof(t_tokenizer));
 	if (!self)
 		return (NULL);
 	self->delim = NULL;
@@ -31,7 +31,7 @@ t_lexer	*lexer_create(void)
 	return (self);
 }
 
-t_lexer	*lexer_init(t_lexer *self, char *input, char *delim)
+t_tokenizer *tokenizer_init(t_tokenizer *self, char *input, char *delim)
 {
 	self->delim = string_clone(delim);
 	self->input = string_clone(input);
@@ -39,10 +39,11 @@ t_lexer	*lexer_init(t_lexer *self, char *input, char *delim)
 	return (self);
 }
 
-t_vector	*lexer_lex(t_lexer *self)
+t_vector *tokenizer_lex(t_tokenizer *self)
 {
-	char		**temp;
-	uint64_t	i;
+	char   **temp;
+	t_token *token;
+	uint64_t i;
 
 	temp = split(self->input, self->delim);
 	if (!temp)
@@ -50,7 +51,8 @@ t_vector	*lexer_lex(t_lexer *self)
 	i = 0;
 	while (temp[i])
 	{
-		vector_insert_at(self->output, (uintptr_t)string_clone(temp[i]), i);
+		token = token_create(temp[i]);
+		vector_insert_at(self->output, (uintptr_t) token, i);
 		i += 1;
 	}
 	split_destroy(temp);
@@ -58,17 +60,19 @@ t_vector	*lexer_lex(t_lexer *self)
 	return (self->output);
 }
 
-t_lexer	*lexer_clear(t_lexer *self)
+t_tokenizer *tokenizer_clear(t_tokenizer *self)
 {
-	char	*temp;
+	t_token *temp;
 
 	if (!self->is_dirty)
 		return (self);
 	it_save(self->output);
 	while (!it_end(self->output))
 	{
-		temp = (char *)it_peek_curr(self->output);
-		memory_dealloc(temp);
+		temp = (t_token *) it_peek_curr(self->output);
+		if (temp)
+			token_destroy(temp);
+		it_advance(self->output);
 	}
 	it_restore(self->output);
 	vector_clear(self->output);
@@ -80,12 +84,12 @@ t_lexer	*lexer_clear(t_lexer *self)
 	return (self);
 }
 
-t_lexer	*lexer_destroy(t_lexer *self)
+t_tokenizer *tokenizer_destroy(t_tokenizer *self)
 {
 	if (!self)
 		return (NULL);
 	if (self->is_dirty)
-		lexer_clear(self);
+		tokenizer_clear(self);
 	vector_destroy(self->output);
 	memory_dealloc(self->delim);
 	memory_dealloc(self->input);

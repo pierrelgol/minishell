@@ -24,6 +24,8 @@
 typedef struct s_prompt        t_prompt;
 typedef struct s_input         t_input;
 typedef struct s_environment   t_environment;
+typedef struct s_token         t_token;
+typedef struct s_tokenizer     t_tokenizer;
 typedef struct s_lexer         t_lexer;
 typedef struct s_shell         t_shell;
 typedef struct s_hashmap_entry t_hashmap_entry;
@@ -62,13 +64,13 @@ struct s_shell
 	int64_t        argc;
 	t_environment *env;
 	t_input       *input;
-	t_lexer       *lexer;
+	t_tokenizer   *tokenizer;
 	t_prompt      *prompt;
 };
 
 t_shell *shell_create(int32_t argc, char **argv, char **envp);
-bool	shell_run(t_shell *shell);
-bool	shell_clear(t_shell *shell);
+bool     shell_run(t_shell *shell);
+bool     shell_clear(t_shell *shell);
 t_shell *shell_destroy(t_shell *self);
 
 struct s_environment
@@ -114,7 +116,47 @@ t_input *input_clear(t_input *self);
 char    *input_get(t_input *self);
 t_input *input_destroy(t_input *self);
 
-struct s_lexer
+typedef enum e_token_kind
+{
+	KIND_NO_KIND,
+	KIND_ID,
+	KIND_CMD,
+	KIND_SPC,
+	KIND_PATH,
+	KIND_FILE,
+	KIND_BLTN,
+	KIND_ARG,
+	KIND_VAR,
+	KIND_ERR,
+	KIND_PIPE,
+	KIND_AMPERSAND,
+	KIND_SCOLON,
+	KIND_RRDIR,
+	KIND_LRDIR,
+	KIND_HERE_DOC,
+	KIND_APPEND,
+
+} t_token_kind;
+
+struct s_token
+{
+	t_token_kind kind;
+	uint64_t     len;
+	uintptr_t    extra;
+	char        *ptr;
+};
+
+t_token     *token_create(char *ptr);
+void         token_print(t_token *token);
+char        *token_get_str(t_token *self);
+t_token_kind token_get_kind(t_token *self);
+uintptr_t    token_get_extra(t_token *self);
+void         token_set_str(t_token *self, char *str);
+void         token_set_kind(t_token *self, t_token_kind kind);
+void         token_set_extra(t_token *self, uintptr_t extra);
+t_token     *token_destroy(t_token *self);
+
+struct s_tokenizer
 {
 	char     *input;
 	char     *delim;
@@ -122,10 +164,17 @@ struct s_lexer
 	bool      is_dirty;
 };
 
-t_lexer  *lexer_create();
-t_lexer  *lexer_init(t_lexer *self, char *input, char *delim);
-t_vector *lexer_lex(t_lexer *self);
-t_lexer  *lexer_clear(t_lexer *self);
-t_lexer  *lexer_destroy(t_lexer *self);
+t_tokenizer *tokenizer_create();
+t_tokenizer *tokenizer_init(t_tokenizer *self, char *input, char *delim);
+t_vector    *tokenizer_lex(t_tokenizer *self);
+t_tokenizer *tokenizer_clear(t_tokenizer *self);
+t_tokenizer *tokenizer_destroy(t_tokenizer *self);
+
+struct s_lexer
+{
+	t_environment *env;
+	t_tokenizer   *tokenizer;
+	t_vector      *token_vector;
+};
 
 #endif
