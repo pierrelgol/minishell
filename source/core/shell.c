@@ -42,7 +42,16 @@ bool shell_run(t_shell *shell)
 	print("%s\n", line);
 	token_vector = tokenizer_tokenize(shell->tokenizer, line, " \n\'\"");
 	token_vector = lexer_lex(shell->lexer, token_vector);
-	dbg_shell_print(shell);
+
+	you need to chose so this is why it doesn't compile
+	//IF YOU WANT TO GET INFORMATIONS BUT NOT TOO MUCH
+
+	// dbg_shell_print(shell);
+
+	//IF YOU WANT TO GET EVEN MORE INFORMATIONS UNCOMMENT
+
+	// dbg_shell_print_verbose(shell);
+
 	shell->is_dirty = true;
 	return (true);
 }
