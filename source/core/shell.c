@@ -26,7 +26,8 @@ t_shell *shell_create(int32_t argc, char **argv, char **envp)
 	self->prompt = prompt_create(self->env);
 	self->input = input_create(self->env, self->prompt, argc, argv);
 	self->tokenizer = tokenizer_create();
-	self->lexer = lexer_create(self->env, self->tokenizer);
+	self->linker = linker_create(self->env);
+	self->lexer = lexer_create(self->env, self->tokenizer, self->linker);
 	return (self);
 }
 
@@ -39,8 +40,9 @@ bool shell_run(t_shell *shell)
 	if (!line)
 		return (false);
 	print("%s\n", line);
-	token_vector = tokenizer_tokenize(shell->tokenizer, line, " \n");
+	token_vector = tokenizer_tokenize(shell->tokenizer, line, " \n\'\"");
 	token_vector = lexer_lex(shell->lexer, token_vector);
+	dbg_shell_print(shell);
 	shell->is_dirty = true;
 	return (true);
 }
@@ -51,6 +53,7 @@ bool shell_clear(t_shell *shell)
 	input_clear(shell->input);
 	tokenizer_clear(shell->tokenizer);
 	lexer_clear(shell->lexer);
+	linker_clear(shell->linker);
 	shell->is_dirty = false;
 	return (true);
 }
@@ -69,6 +72,8 @@ t_shell *shell_destroy(t_shell *self)
 			tokenizer_destroy(self->tokenizer);
 		if (self->lexer)
 			lexer_destroy(self->lexer);
+		if (self->linker)
+			linker_destroy(self->linker);
 		memory_dealloc(self);
 	}
 	return (NULL);

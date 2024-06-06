@@ -15,15 +15,21 @@ CC = clang
 CFLAGS = -Wall                   \
          -Werror                 \
          -Wextra                 \
+         -DDEBUG=1               \
+         -g3                     \
          -fsanitize=address      \
          -fsanitize=undefined    \
          -fsanitize=integer      \
-         -DDEBUG=1               \
-         -g3                     \
          -fno-omit-frame-pointer \
          -MMD -MP
 
-RELEASE_CFLAGS = -O3 -DNDEBUG
+
+RELEASE_CFLAGS = -Wall           \
+                 -Werror         \
+                 -Wextra         \
+		         -O2             \
+                 -MMD -MP
+
 INCLUDE = -I$(HDIR)
 
 NAME = libslib.a

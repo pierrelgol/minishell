@@ -49,6 +49,8 @@ char	*input_get(t_input *self)
 	{
 		if (self->index < self->argc)
 			self->line = string_clone(self->argv[self->index++]);
+		else
+			self->line = NULL;
 	}
 	else
 		self->line = readline(prompt);

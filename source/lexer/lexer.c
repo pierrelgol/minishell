@@ -12,7 +12,7 @@
 
 #include "../../header/minishell.h"
 
-t_lexer *lexer_create(t_environment *env, t_tokenizer *tokenizer)
+t_lexer *lexer_create(t_environment *env, t_tokenizer *tokenizer, t_linker *linker)
 {
 	t_lexer *self;
 
@@ -20,6 +20,7 @@ t_lexer *lexer_create(t_environment *env, t_tokenizer *tokenizer)
 	if (!self)
 		return (NULL);
 	self->env = env;
+	self->linker = linker;
 	self->tokenizer = tokenizer;
 	self->token_vector = NULL;
 	self->is_dirty = false;
@@ -30,24 +31,25 @@ t_vector *lexer_lex(t_lexer *self, t_vector *input)
 {
 	(void) self;
 	self->token_vector = input;
+
 	lexer_identify_all_whitespaces(self, input);
-	lexer_identify_all_builtins(self, input);
-	lexer_identify_all_variables(self, input);
-	lexer_identify_all_commands(self, input);
-	lexer_identify_all_terminals(self, input);
 	lexer_identify_all_quotes(self, input);
-	lexer_identify_all_assignments(self, input);
-	lexer_identify_all_arguments(self, input);
-	lexer_identify_all_path(self, input);
 	lexer_identify_all_redirect(self, input);
 	lexer_identify_all_boolean(self, input);
-	lexer_identify_all_files(self, input);
-	lexer_identify_all_keywords(self, input);
+	lexer_identify_all_terminals(self, input);
+
+	lexer_identify_all_variables(self, input);
 	lexer_identify_all_identifiers(self, input);
+	lexer_identify_all_keywords(self, input);
+	lexer_identify_all_files(self, input);
+	lexer_identify_all_builtins(self, input);
+
+	lexer_identify_all_commands(self, input);
+	lexer_identify_all_paths(self, input);
+	lexer_identify_all_assignments(self, input);
+	lexer_identify_all_arguments(self, input);
 	lexer_identify_all_operators(self, input);
-	lexer_identify_all_punctuators(self, input);
-	lexer_identify_all_string_litterals(self, input);
-	lexer_identify_all_expansions(self, input);
+
 	self->is_dirty = true;
 	return (input);
 }

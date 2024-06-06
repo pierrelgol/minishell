@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./minishell
+python3 ./fuzzer.py

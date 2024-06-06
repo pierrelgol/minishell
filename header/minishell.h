@@ -21,15 +21,16 @@
 #define DIRECT_IO 0
 #endif
 
-typedef struct s_prompt        t_prompt;
-typedef struct s_input         t_input;
 typedef struct s_environment   t_environment;
+typedef struct s_hashmap       t_hashmap;
+typedef struct s_hashmap_entry t_hashmap_entry;
+typedef struct s_input         t_input;
+typedef struct s_lexer         t_lexer;
+typedef struct s_linker        t_linker;
+typedef struct s_prompt        t_prompt;
+typedef struct s_shell         t_shell;
 typedef struct s_token         t_token;
 typedef struct s_tokenizer     t_tokenizer;
-typedef struct s_lexer         t_lexer;
-typedef struct s_shell         t_shell;
-typedef struct s_hashmap_entry t_hashmap_entry;
-typedef struct s_hashmap       t_hashmap;
 
 struct s_hashmap_entry
 {
@@ -66,6 +67,7 @@ struct s_shell
 	t_input       *input;
 	t_tokenizer   *tokenizer;
 	t_lexer       *lexer;
+	t_linker      *linker;
 	t_prompt      *prompt;
 };
 
@@ -88,6 +90,24 @@ bool           enviroment_put(t_environment *self, char *variable, char *value);
 char          *enviroment_get(t_environment *self, char *variable);
 bool           enviroment_rem(t_environment *self, char *variable);
 t_environment *environment_destroy(t_environment *self);
+
+struct s_linker
+{
+	t_environment *env;
+	char         **paths;
+	char          *input;
+	char          *output;
+	bool           is_dirty;
+};
+
+t_linker *linker_create(t_environment *env);
+t_linker *linker_init(t_linker *self, char *additional_dir);
+bool      linker_resolve_exe(t_linker *self, char *exe);
+bool      linker_resolve_path(t_linker *self, char *path);
+char     *linker_resolve(t_linker *self, char *maybe_path, char flag);
+t_linker *linker_clear(t_linker *self);
+char     *linker_make_path(t_linker *self, char *root, char *maybe_path);
+t_linker *linker_destroy(t_linker *self);
 
 struct s_prompt
 {
@@ -119,26 +139,30 @@ t_input *input_destroy(t_input *self);
 
 typedef enum e_token_kind
 {
-	KIND_NO_KIND,
-	KIND_ID,
-	KIND_CMD,
-	KIND_SPC,
-	KIND_PATH,
-	KIND_FILE,
-	KIND_BLTN,
-	KIND_ARG,
-	KIND_VAR,
-	KIND_ERR,
-	KIND_PIPE,
 	KIND_AMPERSAND,
-	KIND_SCOLON,
-	KIND_RRDIR,
-	KIND_LRDIR,
-	KIND_HERE_DOC,
 	KIND_APPEND,
+	KIND_ARG,
+	KIND_ASSIGNMENT,
+	KIND_BLTN,
+	KIND_CMD,
+	KIND_DQUOTE,
+	KIND_ERR,
+	KIND_FILE,
+	KIND_HERE_DOC,
+	KIND_ID,
+	KIND_LRDIR,
+	KIND_NO_KIND,
+	KIND_PATH,
+	KIND_AND,
+	KIND_OR,
+	KIND_PIPE,
+	KIND_QUOTE,
+	KIND_RRDIR,
+	KIND_SCOLON,
+	KIND_SPC,
+	KIND_VAR,
 
 } t_token_kind;
-
 struct s_token
 {
 	t_token_kind kind;
@@ -167,6 +191,7 @@ struct s_tokenizer
 
 t_tokenizer *tokenizer_create();
 t_vector    *tokenizer_tokenize(t_tokenizer *self, char *input, char *delim);
+t_vector    *tokenizer_get(t_tokenizer *self);
 t_tokenizer *tokenizer_clear(t_tokenizer *self);
 t_tokenizer *tokenizer_destroy(t_tokenizer *self);
 
@@ -174,36 +199,51 @@ struct s_lexer
 {
 	t_environment *env;
 	t_tokenizer   *tokenizer;
+	t_linker      *linker;
 	t_vector      *token_vector;
-	bool	is_dirty;
+	bool           is_dirty;
 };
 
-t_lexer  *lexer_create(t_environment *env, t_tokenizer *tokenizer);
+t_lexer *lexer_create(t_environment *env, t_tokenizer *tokenizer, t_linker *linker);
+t_vector *lexer_get(t_lexer *self);
 t_vector *lexer_lex(t_lexer *self, t_vector *input);
 
-void	lexer_identify_all_whitespaces(t_lexer *self, t_vector *it);
-void	lexer_identify_all_builtins(t_lexer *self, t_vector *it);
-void	lexer_identify_all_variables(t_lexer *self, t_vector *it);
-void	lexer_identify_all_commands(t_lexer *self, t_vector *it);
-void	lexer_identify_all_terminals(t_lexer *self, t_vector *it);
+void lexer_identify_all_whitespaces(t_lexer *self, t_vector *it);
+void lexer_identify_all_quotes(t_lexer *self, t_vector *it);
+void lexer_identify_all_redirect(t_lexer *self, t_vector *it);
+void lexer_identify_all_boolean(t_lexer *self, t_vector *it);
+void lexer_identify_all_terminals(t_lexer *self, t_vector *it);
 
-void	lexer_identify_all_quotes(t_lexer *self, t_vector *it);
-void	lexer_identify_all_assignments(t_lexer *self, t_vector *it);
-void	lexer_identify_all_arguments(t_lexer *self, t_vector *it);
-void	lexer_identify_all_path(t_lexer *self, t_vector *it);
-void	lexer_identify_all_redirect(t_lexer *self, t_vector *it);
+void lexer_identify_all_variables(t_lexer *self, t_vector *it);
+void lexer_identify_all_identifiers(t_lexer *self, t_vector *it);
+void lexer_identify_all_keywords(t_lexer *self, t_vector *it);
+void lexer_identify_all_assignments(t_lexer *self, t_vector *it);
+void lexer_identify_all_files(t_lexer *self, t_vector *it);
 
-void	lexer_identify_all_boolean(t_lexer *self, t_vector *it);
-void	lexer_identify_all_files(t_lexer *self, t_vector *it);
-void	lexer_identify_all_keywords(t_lexer *self, t_vector *it);
-void	lexer_identify_all_identifiers(t_lexer *self, t_vector *it);
-void	lexer_identify_all_operators(t_lexer *self, t_vector *it);
+void lexer_identify_all_paths(t_lexer *self, t_vector *it);
+void lexer_identify_all_commands(t_lexer *self, t_vector *it);
+void lexer_identify_all_builtins(t_lexer *self, t_vector *it);
+void lexer_identify_all_arguments(t_lexer *self, t_vector *it);
+void lexer_identify_all_operators(t_lexer *self, t_vector *it);
 
-void	lexer_identify_all_punctuators(t_lexer *self, t_vector *it);
-void	lexer_identify_all_string_litterals(t_lexer *self, t_vector *it);
-void	lexer_identify_all_expansions(t_lexer *self, t_vector *it);
+t_lexer *lexer_clear(t_lexer *self);
+t_lexer *lexer_destroy(t_lexer *self);
 
-t_lexer  *lexer_clear(t_lexer *self);
-t_lexer  *lexer_destroy(t_lexer *self);
+void dbg_shell_print(t_shell *shell);
+void dbg_environment_print(t_environment *env);
+void dbg_prompt_print(t_prompt *prompt);
+void dbg_input_print(t_input *input);
+void dbg_tokenizer_print(t_tokenizer *tokenizer);
+void dbg_token_print(t_token *token);
+void dbg_lexer_print(t_lexer *lexer);
+void dbg_shell_print_verbose(t_shell *shell);
+void dbg_environment_print_verbose(t_environment *env);
+void dbg_prompt_print_verbose(t_prompt *prompt);
+void dbg_input_print_verbose(t_input *input);
+void dbg_tokenizer_print_verbose(t_tokenizer *tokenizer);
+void dbg_token_print_verbose(t_token *token);
+void dbg_lexer_print_verbose(t_lexer *lexer);
+
+char **simple_split(const char *const source, const int32_t ch);
 
 #endif

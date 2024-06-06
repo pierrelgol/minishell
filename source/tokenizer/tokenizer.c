@@ -65,7 +65,11 @@ t_tokenizer *tokenizer_clear(t_tokenizer *self)
 	{
 		temp = (t_token *) it_peek_curr(self->output);
 		if (temp)
+		{
+			if (temp->extra != 0)
+				memory_dealloc((char*)temp->extra);
 			token_destroy(temp);
+		}
 		it_advance(self->output);
 	}
 	it_restore(self->output);

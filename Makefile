@@ -14,15 +14,22 @@ CC = clang
 CFLAGS = -Wall                   \
          -Werror                 \
          -Wextra                 \
+         -DDEBUG=1               \
+         -DDIRECT_IO=1           \
          -fsanitize=address      \
          -fsanitize=undefined    \
          -fsanitize=integer      \
-         -DDEBUG=1               \
          -g3                     \
          -fno-omit-frame-pointer \
          -MMD -MP
 
-RELEASE_CFLAGS = -O3 -DNDEBUG
+
+RELEASE_CFLAGS = -Wall           \
+                 -Werror         \
+                 -Wextra         \
+		         -O2             \
+                 -MMD -MP
+
 INCLUDE = -I$(EXE_HEADER_DIR)
 
 EXE_NAME = minishell
@@ -32,10 +39,12 @@ LIB_NAME = $(LIBRARY_DIR)/libslib.a
 EXE_HEADER_DIR = ./header
 EXE_SOURCE_DIRS = source/.                   \
                   source/core                \
+                  source/debug               \
                   source/environment         \
                   source/hashmap             \
                   source/input               \
                   source/lexer               \
+                  source/linker              \
                   source/tokenizer           \
                   source/token               \
                   source/prompt              \

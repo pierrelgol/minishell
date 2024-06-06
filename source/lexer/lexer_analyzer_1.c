@@ -17,7 +17,7 @@ void lexer_identify_all_whitespaces(t_lexer *self, t_vector *it)
 	t_token *token;
 	uint64_t i;
 
-	(void)self;
+	(void) self;
 	it_save(it);
 	while (!it_end(it))
 	{
@@ -39,46 +39,69 @@ void lexer_identify_all_whitespaces(t_lexer *self, t_vector *it)
 	it_restore(it);
 }
 
-void lexer_identify_all_builtins(t_lexer *self, t_vector *it)
+void lexer_identify_all_quotes(t_lexer *self, t_vector *it)
 {
 	t_token *token;
 
-	(void)self;
+	(void) self;
 	it_save(it);
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peek_curr(it);
-		(void)token;
+		if (token && token->kind == KIND_NO_KIND)
+		{
+			if (token->ptr[0] == '\"')
+				token->kind = KIND_DQUOTE;
+			if (token->ptr[0] == '\'')
+				token->kind = KIND_QUOTE;
+		}
+		(void) token;
 		it_advance(it);
 	}
 	it_restore(it);
 }
 
-void lexer_identify_all_variables(t_lexer *self, t_vector *it)
+void lexer_identify_all_redirect(t_lexer *self, t_vector *it)
 {
 	t_token *token;
 
-	(void)self;
+	(void) self;
 	it_save(it);
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peek_curr(it);
-		(void)token;
+		if (token && token->kind == KIND_NO_KIND)
+		{
+			if (string_search(token->ptr, "<<", token->len) != 0)
+				token_set_kind(token, KIND_HERE_DOC);
+			if (string_search(token->ptr, ">>", token->len) != 0)
+				token_set_kind(token, KIND_APPEND);
+			if (string_search(token->ptr, "<", token->len) != 0)
+				token_set_kind(token, KIND_LRDIR);
+			if (string_search(token->ptr, "<<", token->len) != 0)
+				token_set_kind(token, KIND_RRDIR);
+		}
 		it_advance(it);
 	}
 	it_restore(it);
 }
 
-void lexer_identify_all_commands(t_lexer *self, t_vector *it)
+void lexer_identify_all_boolean(t_lexer *self, t_vector *it)
 {
 	t_token *token;
 
-	(void)self;
+	(void) self;
 	it_save(it);
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peek_curr(it);
-		(void)token;
+		if (token && token->kind == KIND_NO_KIND)
+		{
+			if (string_ncompare(token->ptr, "&&", 2) == 0)
+				token->kind = KIND_AND;
+			if (string_ncompare(token->ptr, "||", 2) == 0)
+				token->kind = KIND_OR;
+		}
 		it_advance(it);
 	}
 	it_restore(it);
@@ -88,12 +111,21 @@ void lexer_identify_all_terminals(t_lexer *self, t_vector *it)
 {
 	t_token *token;
 
-	(void)self;
+	(void) self;
 	it_save(it);
 	while (!it_end(it))
 	{
 		token = (t_token *) it_peek_curr(it);
-		(void)token;
+		if (token && token->kind == KIND_NO_KIND)
+		{
+			if (token->len == 1 && token->ptr[0] == '|')
+				token->kind = KIND_PIPE;
+			else if (token->len == 1 && token->ptr[0] == '&')
+				token->kind = KIND_AMPERSAND;
+			else if (token->len == 1 && token->ptr[0] == ';')
+				token->kind = KIND_SCOLON;
+		}
+		(void) token;
 		it_advance(it);
 	}
 	it_restore(it);
