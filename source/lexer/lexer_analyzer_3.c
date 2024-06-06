@@ -95,8 +95,10 @@ void lexer_identify_all_arguments(t_lexer *self, t_vector *it)
 		token = (t_token *) it_peek_curr(it);
 		if (token && (token->kind == KIND_NO_KIND || token->kind == KIND_ID))
 		{
-			if (string_ncompare("-", token->ptr, 1) == 0 || string_ncompare("--", token->ptr ,2) == 0)
-				token->kind = KIND_ARG;			
+			if (token->len >= 2 && token->ptr[0] == '-')
+				token->kind = KIND_ARG;
+			if (( token->len >= 3 && token->ptr[0] == '-' && token->ptr[1] == '-'))
+				token->kind = KIND_ARG;
 		}
 		it_advance(it);
 	}
