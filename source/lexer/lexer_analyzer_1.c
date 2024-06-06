@@ -72,13 +72,13 @@ void lexer_identify_all_redirect(t_lexer *self, t_vector *it)
 		token = (t_token *) it_peek_curr(it);
 		if (token && token->kind == KIND_NO_KIND)
 		{
-			if (string_search(token->ptr, "<<", token->len) != 0)
+			if (string_ncompare(token->ptr, "<<", 2) == 0)
 				token_set_kind(token, KIND_HERE_DOC);
-			if (string_search(token->ptr, ">>", token->len) != 0)
+			if (string_ncompare(token->ptr, ">>", 2) == 0)
 				token_set_kind(token, KIND_APPEND);
-			if (string_search(token->ptr, "<", token->len) != 0)
+			if (string_ncompare(token->ptr, "<", 1) == 0)
 				token_set_kind(token, KIND_LRDIR);
-			if (string_search(token->ptr, "<<", token->len) != 0)
+			if (string_ncompare(token->ptr, ">", 1) == 0)
 				token_set_kind(token, KIND_RRDIR);
 		}
 		it_advance(it);
