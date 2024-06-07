@@ -66,11 +66,13 @@ struct s_shell
 	char         **envp;
 	int64_t        argc;
 	t_environment *env;
+	t_exec        *exec;
 	t_input       *input;
-	t_tokenizer   *tokenizer;
 	t_lexer       *lexer;
 	t_linker      *linker;
+	t_parser      *parser;
 	t_prompt      *prompt;
+	t_tokenizer   *tokenizer;
 };
 
 t_shell *shell_create(int32_t argc, char **argv, char **envp);
@@ -230,6 +232,35 @@ void lexer_identify_all_operators(t_lexer *self, t_vector *it);
 
 t_lexer *lexer_clear(t_lexer *self);
 t_lexer *lexer_destroy(t_lexer *self);
+
+struct s_parser
+{
+	t_environment *env;
+	t_lexer       *lexer;
+	t_linker      *linker;
+	t_vector      *input;
+	t_vector      *output;
+	bool           is_dirty;
+};
+
+t_parser *parser_create(t_environment *env, t_lexer *lexer, t_linker *linker);
+t_vector *parser_parse(t_parser *self, t_vector *input);
+t_parser *parser_clear(t_parser *self);
+t_parser *parser_destroy(t_parser *self);
+
+struct s_exec
+{
+	t_shell       *shell;
+	t_environment *env;
+	t_linker      *linker;
+	t_vector      *input;
+	bool           is_dirty;
+};
+
+t_exec   *exec_create(t_shell *shell, t_environment *env, t_linker *linker);
+t_vector *exec_execute(t_exec *self, t_vector *commands);
+t_exec   *exec_clear(t_exec *self);
+t_exec   *exec_destroy(t_exec *self);
 
 void dbg_shell_print(t_shell *shell);
 void dbg_environment_print(t_environment *env);

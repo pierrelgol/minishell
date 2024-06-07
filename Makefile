@@ -45,6 +45,8 @@ EXE_SOURCE_DIRS = source/.                   \
                   source/input               \
                   source/lexer               \
                   source/linker              \
+                  source/parser              \
+                  source/exec                \
                   source/tokenizer           \
                   source/token               \
                   source/prompt              \

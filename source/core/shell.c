@@ -39,15 +39,19 @@ t_shell *shell_create(int32_t argc, char **argv, char **envp)
 	// @STEP05 The tokenizer is the structure responsible for taking the inputs, and cutting in into
 	// tokens which will be stored inside a vector (an array that growth automatically and is iterable)
 	self->tokenizer = tokenizer_create();
-	// @STEP06 The linker is responsible for providing support to every structure that needs to be able
-	// to test and resolve paths.
+	// @STEP06 The linker is responsible for providing support to every
+	// structure that needs to be able to test and resolve paths.
 	self->linker = linker_create(self->env);
 	// @STEP07 The lexer is the structure responsible for identifying roughly the "type" of a token
 	// given the current syntax, and contextx, it will take the tokenizer token_vector output
 	// iterate over it and simply fill the token_kind field. It will also put inside the extra
 	// field the path found by the linker for CMD kind.
- 	self->lexer = lexer_create(self->env, self->tokenizer, self->linker);
- 	// @STEP08 --> in ./source/main.c
+	self->lexer = lexer_create(self->env, self->tokenizer, self->linker);
+	// @STEP08 --> in ./source/main.c
+
+	// @STEP08XXXXX this is where you add your stuff
+	self->parser = parser_create(self->env, self->lexer, self->linker);
+	self->exec = exec_create(self, self->env, self->linker);
 	return (self);
 }
 
@@ -67,8 +71,8 @@ bool shell_run(t_shell *shell)
 	// as our separator those will be kept in the split
 	// --> ./source/tokenizer/tokenizer.c
 	token_vector = tokenizer_tokenize(shell->tokenizer, line, " \n\'\"");
-	// @STEP20 we now have a token_vector full of our split we pass it to the
-	// lexer which will identify all of the types for our tokens
+	// @STEP20 we now have a token_vector full of our split we pass it to
+	// the lexer which will identify all of the types for our tokens
 	// --> ./source/lexer/lexer.c
 	token_vector = lexer_lex(shell->lexer, token_vector);
 	// @STEP22 we now have a token vector where every token structure has
@@ -76,8 +80,14 @@ bool shell_run(t_shell *shell)
 	// a 2: len --> with the length of the ptr field
 	// a 3: kind --> with the kind found by the lexer
 	// we can now print all of our debug information
-	// you can also call dbg_shell_print_verbose(shell) if you want 
+	// you can also call dbg_shell_print_verbose(shell) if you want
 	// some extra informations
+
+	// @STEP22XXXXXX This is where you add your stuff
+	token_vector = parser_parse(shell->parser, token_vector);
+	token_vector = exec_execute(shell->exec, token_vector);
+
+	// @STEP22XXXXX Add the debug info 
 	dbg_shell_print(shell);
 
 	shell->is_dirty = true;
@@ -92,6 +102,8 @@ bool shell_clear(t_shell *shell)
 	tokenizer_clear(shell->tokenizer);
 	lexer_clear(shell->lexer);
 	linker_clear(shell->linker);
+	parser_clear(shell->parser);
+	exec_clear(shell->exec);
 	shell->is_dirty = false;
 	return (true);
 }
@@ -112,6 +124,10 @@ t_shell *shell_destroy(t_shell *self)
 			lexer_destroy(self->lexer);
 		if (self->linker)
 			linker_destroy(self->linker);
+		if (self->parser)
+			parser_destroy(self->parser);
+		if (self->exec)
+			exec_destroy(self->exec);
 		memory_dealloc(self);
 	}
 	return (NULL);
