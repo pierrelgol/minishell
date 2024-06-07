@@ -27,6 +27,7 @@ t_prompt	*prompt_create(t_environment *env)
 
 char	*prompt_get(t_prompt *self)
 {
+	// @STEP11 This is where we bulid the prompt
 	const char	*pwd = enviroment_get(self->env, "PWD");
 	const char	*usr = enviroment_get(self->env, "USER");
 	const char	*symbol = " |> ";
@@ -40,6 +41,7 @@ char	*prompt_get(t_prompt *self)
 	memory_dealloc(self->prompt);
 	self->prompt = temp;
 	self->is_dirty = true;
+	// @STEP12 --> ./source/input/input.c
 	return (self->prompt);
 }
 

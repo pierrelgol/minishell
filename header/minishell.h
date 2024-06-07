@@ -25,6 +25,8 @@ typedef struct s_environment   t_environment;
 typedef struct s_hashmap       t_hashmap;
 typedef struct s_hashmap_entry t_hashmap_entry;
 typedef struct s_input         t_input;
+typedef struct s_exec          t_exec;
+typedef struct s_parser        t_parser;
 typedef struct s_lexer         t_lexer;
 typedef struct s_linker        t_linker;
 typedef struct s_prompt        t_prompt;
