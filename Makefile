@@ -11,74 +11,89 @@
 # **************************************************************************** #
 
 CC = clang
-CFLAGS =  -Wall                                     \
-          -Wextra                                   \
-          -Werror                                   \
-          -DDIRECT_IO=1                             \
-          -g3                                       \
-          -march=native                             \
-          -mtune=native                             \
-          -fsanitize=address                        \
-          -fsanitize=undefined                      \
-          -fsanitize=integer                        \
-          -fstrict-overflow                         \
-          -Walloca                                  \
-          -Wformat=2                                \
-          -Wformat-security                         \
-          -Wnull-dereference                        \
-          -Wstack-protector                         \
-          -Wvla                                     \
-          -Wshorten-64-to-32                        \
-          -Warray-bounds                            \
-          -Warray-bounds-pointer-arithmetic         \
-          -Wimplicit-fallthrough                    \
-          -Wloop-analysis                           \
-          -Wshift-sign-overflow                     \
-          -Wswitch-enum                             \
-          -Wtautological-constant-in-range-compare  \
-          -Wcomma                                   \
-          -Wassign-enum                             \
-          -Wfloat-equal                             \
-          -Wformat-type-confusion                   \
-          -Wpointer-arith                           \
-          -Widiomatic-parentheses                   \
-          -Wunreachable-code-aggressive             \
-          -fstack-protector-all                     \
-          -fPIE                                     \
-          -fno-optimize-sibling-calls               \
+CFLAGS = -Wall                   \
+         -Werror                 \
+         -Wextra                 \
+         -DDEBUG=1               \
+         -DDIRECT_IO=1           \
+         -fsanitize=address      \
+         -fsanitize=undefined    \
+         -fsanitize=integer      \
+         -g3                     \
+         -fno-omit-frame-pointer \
+         -MMD -MP
 
+
+RELEASE_CFLAGS = -Wall           \
+                 -Werror         \
+                 -Wextra         \
+		         -O2             \
+                 -MMD -MP
+
+INCLUDE = -I$(EXE_HEADER_DIR)
+
+EXE_NAME = minishell
 LIBRARY_DIR = ./library
-LIB_NAME = $(LIBRARY_DIR)/libclib.a
+LIB_NAME = $(LIBRARY_DIR)/libslib.a
 
 EXE_HEADER_DIR = ./header
-EXE_SOURCE_DIR = source/.                   \
-                 source/core                \
-                 source/builtin             \
-                 source/lexer               \
-                 source/executor            \
-                 source/utils               
-EXE_NAME = minishell
+EXE_SOURCE_DIRS = source/.                   \
+                  source/core                \
+                  source/debug               \
+                  source/environment         \
+                  source/hashmap             \
+                  source/input               \
+                  source/lexer               \
+                  source/linker              \
+                  source/tokenizer           \
+                  source/token               \
+                  source/prompt              \
+                  source/utils               
+ODIR = ./build
 
-SRCS = $(foreach dir,$(EXE_SOURCE_DIR),$(wildcard $(dir)/*.c))
-OBJS = $(SRCS:.c=.o)
+SRCS = $(foreach dir,$(EXE_SOURCE_DIRS),$(wildcard $(dir)/*.c))
+OBJS = $(patsubst %.c,$(ODIR)/%.o,$(SRCS))
+DEPS = $(OBJS:.o=.d)
 
-.PHONY: all clean fclean re
+GREEN = \033[0;32m
+BLUE = \033[0;34m
+NC = \033[0m
+
+.PHONY: all clean fclean re release
 
 all: $(EXE_NAME)
 
 $(EXE_NAME): $(OBJS) $(LIB_NAME)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lclib -lreadline
+	@echo "$(BLUE)Creating executable $(EXE_NAME)...$(NC)"
+	@$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBRARY_DIR) -lslib -lreadline
+	@echo "$(GREEN)Executable $(EXE_NAME) created successfully!$(NC)"
+
+$(ODIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+	@echo "$(GREEN)Compiled $< to $@$(NC)"
 
 $(LIB_NAME):
-	make -C $(LIBRARY_DIR)
+	@echo "$(BLUE)Building library $(LIB_NAME)...$(NC)"
+	@make -C $(LIBRARY_DIR)
+	@echo "$(GREEN)Library $(LIB_NAME) built successfully!$(NC)"
+
+release: CFLAGS += $(RELEASE_CFLAGS)
+release: fclean all
 
 clean:
-	$(RM) $(OBJS)
-	make -C $(LIBRARY_DIR) clean
+	@echo "$(BLUE)Cleaning up object files...$(NC)"
+	@rm -f $(OBJS) $(DEPS)
+	@rm -rf $(ODIR)
+	@echo "$(GREEN)Cleaned up object files!$(NC)"
+	@make -C $(LIBRARY_DIR) clean
 
 fclean: clean
-	$(RM) $(EXE_NAME)
-	make -C $(LIBRARY_DIR) fclean
+	@echo "$(BLUE)Cleaning up executable and library...$(NC)"
+	@rm -f $(EXE_NAME)
+	@make -C $(LIBRARY_DIR) fclean
+	@echo "$(GREEN)Cleaned up executable and library!$(NC)"
 
 re: fclean all
-	
+
+-include $(DEPS)

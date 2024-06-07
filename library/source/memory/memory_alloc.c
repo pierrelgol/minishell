@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   memory_alloc.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 10:50:42 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 10:50:43 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 10:58:58 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 10:58:59 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	*memory_alloc(uint64_t size)
+void	*memory_alloc(const uint64_t size)
 {
-	return (malloc(size));
+	void *const ptr = malloc((size_t)size);
+	return (memory_zero(ptr, size));
 }

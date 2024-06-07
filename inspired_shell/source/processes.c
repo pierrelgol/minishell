@@ -1,4 +1,5 @@
 #include "../minishell.h"
+#include <sys/wait.h>
 
 int	pipe_has_been_used(int pipe_uses)
 {

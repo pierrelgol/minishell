@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   print3.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/26 10:36:57 by pollivie          #+#    #+#             */
-/*   Updated: 2024/04/26 10:36:57 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 12:32:55 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 12:32:55 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
 t_printer	print_fmt_parser(const char *fmt)
 {
@@ -61,7 +61,7 @@ int32_t	arg_len(const char *fmt)
 	return (0);
 }
 
-int	print(int fd, const char *fmt, ...)
+int	print(const char *fmt, ...)
 {
 	va_list		arguments;
 	uint64_t	index;
@@ -74,11 +74,11 @@ int	print(int fd, const char *fmt, ...)
 	{
 		if (fmt[index] == '%')
 		{
-			count += print_fmt_parser(&fmt[++index]).fmt(arguments, fd);
+			count += print_fmt_parser(&fmt[++index]).fmt(arguments, 1);
 			index += arg_len(&fmt[index]);
 		}
 		else
-			count += write(fd, &fmt[index++], 1);
+			count += write(1, &fmt[index++], 1);
 	}
 	va_end(arguments);
 	return (count);

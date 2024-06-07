@@ -1,4 +1,5 @@
 #include "../minishell.h"
+#include <sys/wait.h>
 
 void	execute_command(t_minishell *self)
 {

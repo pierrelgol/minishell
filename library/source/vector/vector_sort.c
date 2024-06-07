@@ -5,32 +5,56 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 19:26:35 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 19:26:50 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/04 13:08:28 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/04 13:08:29 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "../../include/clib.h"
 
-void vector_sort(t_vector *self, t_compare *compare)
+#include "../../header/slib.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+static void swap(uintptr_t *const a, uintptr_t *const b)
 {
-	uint64_t  i;
-	uint64_t  j;
-	uintptr_t tmp;
+	const uintptr_t temp = *a;
+	*a = *b;
+	*b = temp;
+}
 
-	i = 0;
-	while (i < self->count)
+static void quicksort(uintptr_t *data, int64_t left, int64_t right, int64_t(cmp)(uintptr_t a, uintptr_t b))
+{
+	int64_t pivot;
+	int64_t i;
+	int64_t j;
+
+	if (left >= right)
+		return;
+	i = left;
+	j = right;
+	pivot = data[(left + right) / 2];
+	while (i <= j)
 	{
-		j = i + 1;
-		while (j < self->count)
+		while (cmp(data[i], pivot) < 0)
+			i++;
+		while (cmp(data[j], pivot) > 0)
+			j--;
+		if (i <= j)
 		{
-			if (compare(self->data[i], self->data[j]) > 0)
-			{
-				tmp = self->data[i];
-				self->data[i] = self->data[j];
-				self->data[j] = tmp;
-			}
-			j++;
+			swap(&data[i], &data[j]);
+			i++;
+			j--;
 		}
-		i++;
 	}
+	quicksort(data, left, j, cmp);
+	quicksort(data, i, right, cmp);
+}
+
+void vector_sort(t_vector *self, int64_t(cmp)(uintptr_t a, uintptr_t b))
+{
+	if (self == NULL || self->data == NULL || self->count < 2)
+		return;
+	quicksort(self->data, 0, self->count - 1, cmp);
+	self->is_sorted = 1;
 }

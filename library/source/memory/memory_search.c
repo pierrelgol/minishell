@@ -3,30 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   memory_search.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pollivie <pollivie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/03 11:30:12 by pollivie          #+#    #+#             */
-/*   Updated: 2024/02/03 11:30:13 by pollivie         ###   ########.fr       */
+/*   Created: 2024/05/30 11:01:41 by pollivie          #+#    #+#             */
+/*   Updated: 2024/05/30 11:01:42 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-void	*memory_search(const void *src, int32_t c, uint64_t n)
+void	*memory_search(const void *const source, const int32_t byte,
+		const uint64_t ssize)
 {
+	const uint8_t	b = (const uint8_t)byte;
 	uint64_t		i;
-	unsigned char	*s;
 
+	const uint8_t *const ptr = (const uint8_t *const)source;
 	i = 0;
-	s = (unsigned char *)src;
-	if (n == 0)
-		return ((void *)s);
-	i = 0;
-	while (i < n)
-	{
-		if (*(s + i) == c)
-			return (s + i);
-		++i;
-	}
-	return (0);
+	while (i < ssize && *(ptr + i) != b)
+		i += 1;
+	if (i == ssize)
+		return (NULL);
+	return ((void *)ptr + i);
 }

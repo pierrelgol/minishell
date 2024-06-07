@@ -5,20 +5,17 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 20:43:19 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 20:43:20 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 11:09:24 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 11:09:24 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-t_vector	*vector_clear(t_vector *vector)
+void	vector_clear(t_vector *self)
 {
-	uint64_t	total_byte_count;
-
-	clib_assert(vector != NULL);
-	total_byte_count = vector->count * sizeof(uintptr_t);
-	memory_set(vector->data, 0x00, total_byte_count);
-	vector->count = 0;
-	return (vector);
+	memory_fill(self->data, 0x00, self->count * sizeof(uintptr_t));
+	self->count = 0;
+	self->index = 0;
+	self->saved = 0;
 }

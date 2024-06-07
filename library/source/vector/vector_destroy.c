@@ -5,21 +5,20 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pollivie <pollivie.student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/24 18:31:46 by pollivie          #+#    #+#             */
-/*   Updated: 2024/05/24 18:31:46 by pollivie         ###   ########.fr       */
+/*   Created: 2024/06/03 10:14:01 by pollivie          #+#    #+#             */
+/*   Updated: 2024/06/03 10:14:02 by pollivie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/clib.h"
+#include "../../header/slib.h"
 
-t_vector	*vector_destroy(t_vector *vector)
+t_vector	*vector_destroy(t_vector *self)
 {
-	t_allocator *allocator;
-
-	clib_assert(vector != NULL);
-	allocator = vector->allocator;
-	clib_assert(allocator != NULL);
-	allocator->destroy(allocator, vector->data);
-	allocator->destroy(allocator, vector);
+	if (self)
+	{
+		if (self->data)
+			memory_dealloc(self->data);
+		memory_dealloc(self);
+	}
 	return (NULL);
 }

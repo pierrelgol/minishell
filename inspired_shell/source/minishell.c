@@ -118,7 +118,7 @@ void	minishell_loop(t_minishell *self)
 			break;
 		tokeniser(self);
 		guesser(self);
-		//display_parsing_info(self);
+		display_parsing_info(self);
 		//execute_command(self);
 		set_tokenArray(self);
 		fill_cmd_table(self);
