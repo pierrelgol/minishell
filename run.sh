@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python3 ./fuzzer.py
+./mfuzz $PWD/minishell -n 1 -l 2
