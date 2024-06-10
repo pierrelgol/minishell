@@ -24,7 +24,11 @@ void lexer_identify_all_variables(t_lexer *self, t_vector *it)
 		if (token && token->kind == KIND_NO_KIND)
 		{
 			if (token->ptr[0] == '$')
+			{
 				token->kind = KIND_VAR;
+				token_set_str(token, enviroment_get(self->env, &token->ptr[1]));
+				
+			}
 		}
 		(void) token;
 		it_advance(it);

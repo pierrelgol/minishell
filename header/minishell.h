@@ -14,13 +14,16 @@
 #define MINISHELL_H
 
 #include "slib.h"
+#include <limits.h>
 #include <readline/history.h>
 #include <readline/readline.h>
+#include "minishell_2.h"
 
 #ifndef DIRECT_IO
 #define DIRECT_IO 0
 #endif
 
+typedef struct s_builtins      t_builtins;
 typedef struct s_environment   t_environment;
 typedef struct s_hashmap       t_hashmap;
 typedef struct s_hashmap_entry t_hashmap_entry;
@@ -66,11 +69,9 @@ struct s_shell
 	char         **envp;
 	int64_t        argc;
 	t_environment *env;
-	t_exec        *exec;
 	t_input       *input;
 	t_lexer       *lexer;
 	t_linker      *linker;
-	t_parser      *parser;
 	t_prompt      *prompt;
 	t_tokenizer   *tokenizer;
 };
@@ -144,6 +145,7 @@ t_input *input_destroy(t_input *self);
 typedef enum e_token_kind
 {
 	KIND_AMPERSAND,
+	KIND_AND,
 	KIND_APPEND,
 	KIND_ARG,
 	KIND_ASSIGNMENT,
@@ -156,17 +158,16 @@ typedef enum e_token_kind
 	KIND_ID,
 	KIND_LRDIR,
 	KIND_NO_KIND,
-	KIND_PATH,
-	KIND_AND,
 	KIND_OR,
+	KIND_PATH,
 	KIND_PIPE,
 	KIND_QUOTE,
 	KIND_RRDIR,
 	KIND_SCOLON,
 	KIND_SPC,
 	KIND_VAR,
-
 } t_token_kind;
+
 struct s_token
 {
 	t_token_kind kind;
@@ -233,34 +234,41 @@ void lexer_identify_all_operators(t_lexer *self, t_vector *it);
 t_lexer *lexer_clear(t_lexer *self);
 t_lexer *lexer_destroy(t_lexer *self);
 
-struct s_parser
+struct s_builtins
 {
 	t_environment *env;
-	t_lexer       *lexer;
-	t_linker      *linker;
-	t_vector      *input;
-	t_vector      *output;
+	char          *cd_cwd;
 	bool           is_dirty;
 };
 
-t_parser *parser_create(t_environment *env, t_lexer *lexer, t_linker *linker);
-t_vector *parser_parse(t_parser *self, t_vector *input);
-t_parser *parser_clear(t_parser *self);
-t_parser *parser_destroy(t_parser *self);
+t_builtins *builtins_create(t_environment *env);
+t_builtins *builtins_clear(t_builtins *self);
+t_builtins *builtins_sync(t_builtins *self);
+t_builtins *builtins_destroy(t_builtins *self);
 
-struct s_exec
-{
-	t_shell       *shell;
-	t_environment *env;
-	t_linker      *linker;
-	t_vector      *input;
-	bool           is_dirty;
-};
+t_builtins *builtins_clear_echo(t_builtins *self);
+t_builtins *builtins_sync_echo(t_builtins *self);
+t_builtins *builtins_destroy_echo(t_builtins *self);
 
-t_exec   *exec_create(t_shell *shell, t_environment *env, t_linker *linker);
-t_vector *exec_execute(t_exec *self, t_vector *commands);
-t_exec   *exec_clear(t_exec *self);
-t_exec   *exec_destroy(t_exec *self);
+t_builtins *builtins_clear_cd(t_builtins *self);
+t_builtins *builtins_sync_cd(t_builtins *self);
+t_builtins *builtins_destroy_cd(t_builtins *self);
+
+t_builtins *builtins_clear_env(t_builtins *self);
+t_builtins *builtins_sync_env(t_builtins *self);
+t_builtins *builtins_destroy_env(t_builtins *self);
+
+t_builtins *builtins_clear_export(t_builtins *self);
+t_builtins *builtins_sync_export(t_builtins *self);
+t_builtins *builtins_destroy_export(t_builtins *self);
+
+t_builtins *builtins_clear_pwd(t_builtins *self);
+t_builtins *builtins_sync_pwd(t_builtins *self);
+t_builtins *builtins_destroy_pwd(t_builtins *self);
+
+t_builtins *builtins_clear_unset(t_builtins *self);
+t_builtins *builtins_sync_unset(t_builtins *self);
+t_builtins *builtins_destroy_unset(t_builtins *self);
 
 void dbg_shell_print(t_shell *shell);
 void dbg_environment_print(t_environment *env);

@@ -50,8 +50,6 @@ t_shell *shell_create(int32_t argc, char **argv, char **envp)
 	// @STEP08 --> in ./source/main.c
 
 	// @STEP08XXXXX this is where you add your stuff
-	self->parser = parser_create(self->env, self->lexer, self->linker);
-	self->exec = exec_create(self, self->env, self->linker);
 	return (self);
 }
 
@@ -84,11 +82,9 @@ bool shell_run(t_shell *shell)
 	// some extra informations
 
 	// @STEP22XXXXXX This is where you add your stuff
-	token_vector = parser_parse(shell->parser, token_vector);
-	token_vector = exec_execute(shell->exec, token_vector);
 
 	// @STEP22XXXXX Add the debug info 
-	dbg_shell_print(shell);
+	dbg_shell_print_verbose(shell);
 
 	shell->is_dirty = true;
 	// @STEP23 back to --> ./source/main.c
@@ -102,8 +98,6 @@ bool shell_clear(t_shell *shell)
 	tokenizer_clear(shell->tokenizer);
 	lexer_clear(shell->lexer);
 	linker_clear(shell->linker);
-	parser_clear(shell->parser);
-	exec_clear(shell->exec);
 	shell->is_dirty = false;
 	return (true);
 }
@@ -124,10 +118,6 @@ t_shell *shell_destroy(t_shell *self)
 			lexer_destroy(self->lexer);
 		if (self->linker)
 			linker_destroy(self->linker);
-		if (self->parser)
-			parser_destroy(self->parser);
-		if (self->exec)
-			exec_destroy(self->exec);
 		memory_dealloc(self);
 	}
 	return (NULL);

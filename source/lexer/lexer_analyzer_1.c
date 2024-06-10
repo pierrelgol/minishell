@@ -69,6 +69,7 @@ void lexer_identify_all_whitespaces(t_lexer *self, t_vector *it)
 	it_restore(it);
 }
 
+
 void lexer_identify_all_quotes(t_lexer *self, t_vector *it)
 {
 	t_token *token;
