@@ -101,7 +101,7 @@ int	tokenArray_size(tokenList **array)
 	return (size);
 }
 
-void	set_token_2Array(t_minishell *sh)
+void	set_token_Array(t_minishell *sh)
 {
 	if (!sh || !sh->token_list || !sh->token_list->head)
 		return ;

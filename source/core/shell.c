@@ -48,6 +48,7 @@ t_shell *shell_create(int32_t argc, char **argv, char **envp)
 	// field the path found by the linker for CMD kind.
 	self->lexer = lexer_create(self->env, self->tokenizer, self->linker);
 	// @STEP08 --> in ./source/main.c
+	self->minishell = minishell_create(envp);
 
 	// @STEP08XXXXX this is where you add your stuff
 	return (self);
@@ -81,10 +82,21 @@ bool shell_run(t_shell *shell)
 	// you can also call dbg_shell_print_verbose(shell) if you want
 	// some extra informations
 
+	// dbg_shell_print_verbose(shell);
+
+	from_token_vector_to_token_list(shell, shell->minishell, token_vector);
+	// quoter(shell->minishell);
+	guesser(shell->minishell);
+	// display_parsing_info(shell->minishell);
+	set_token_Array(shell->minishell);
+	fill_cmd_table(shell->minishell);
+	parent_process(shell->minishell);
+	minishell_clear(shell->minishell);
+
+
 	// @STEP22XXXXXX This is where you add your stuff
 
 	// @STEP22XXXXX Add the debug info 
-	dbg_shell_print_verbose(shell);
 
 	shell->is_dirty = true;
 	// @STEP23 back to --> ./source/main.c
@@ -118,6 +130,8 @@ t_shell *shell_destroy(t_shell *self)
 			lexer_destroy(self->lexer);
 		if (self->linker)
 			linker_destroy(self->linker);
+		if (self->minishell)
+			minishell_destroy(self->minishell);
 		memory_dealloc(self);
 	}
 	return (NULL);

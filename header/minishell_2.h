@@ -2,13 +2,14 @@
 # define MINISHELL_2_H
 
 # include "stdio.h"
-# include "../libft/includes/common.h"
-# include "../libft/includes/ft_printf.h"
-# include "../libft/includes/get_next_line.h"
-# include "../libft/includes/libft.h"
+#include "common.h"
+# include "ft_printf.h"
+# include "get_next_line.h"
+# include "libft.h"
 #include <sys/wait.h>
 # define COLOR_GREEN "\033[0;32m"
 # define COLOR_RESET "\033[0m"
+
 
 typedef enum e_token_type
 {
@@ -124,7 +125,7 @@ void	expect(t_minishell *minishell, void *ptr, char *message);
 tokenList	*token_list_new(void);
 void	token_list_clear(tokenList *self);
 void	token_list_destroy(tokenList *self);
-void	token_list_add_back(tokenList *tklist, char *value);
+void	token_list_add_back(tokenList *tklist, t_token *token);
 void	token_list_print_value(tokenList *self);
 void	token_list_print_type(tokenList *self);
 
@@ -150,6 +151,7 @@ void	set_path_variable(t_minishell *minishell, char *envp[]);
 t_minishell	*minishell_create(char *envp[]);
 void	minishell_destroy(t_minishell *self);
 void	minishell_loop(t_minishell *self);
+void	minishell_clear(t_minishell *self);
 void	minishell_get_extended_line(t_minishell *self);
 void	tokeniser(t_minishell *self);
 
@@ -200,8 +202,9 @@ int	tokenArray_tokenList_count(tokenList *self); //we have pipe_count + 1 tokenL
 tokenList	**tokenArray_init(t_minishell *sh);
 void	tokenArray_destroy(tokenList **token_array);
 int	tokenArray_size(tokenList **array);
-void	set_tokenArray(t_minishell *sh);
+void	set_token_Array(t_minishell *sh);
 void	tokenCopy_add_back(tokenList *tklist, t_token_2 *token);
+
 void	fill_tokenArray(t_minishell *sh);
 void	print_tokenArray(tokenList **array);
 

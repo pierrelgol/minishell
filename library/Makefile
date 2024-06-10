@@ -23,7 +23,6 @@ CFLAGS = -Wall                   \
          -fno-omit-frame-pointer \
          -MMD -MP
 
-
 RELEASE_CFLAGS = -Wall           \
                  -Werror         \
                  -Wextra         \

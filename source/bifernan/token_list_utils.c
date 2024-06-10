@@ -13,11 +13,11 @@ tokenList	*token_list_new(void)
 	return (tokenlist);
 }
 
-void	token_list_add_back(tokenList *tklist, char *value)
+void	token_list_add_back(tokenList *tklist, t_token *token)
 {
 	t_token_2	*new_node;
 
-	if (!tklist || !value)
+	if (!tklist || !token)
 		return ;
 	new_node = (t_token_2 *)malloc(sizeof(t_token_2));
 	if (!new_node)
@@ -26,8 +26,8 @@ void	token_list_add_back(tokenList *tklist, char *value)
 		return ;
 	}
 	new_node->id = tklist->size;
-	new_node->value = value;
-	new_node->size = ft_strlen(value);
+	new_node->value = token->ptr;
+	new_node->size = token->len;
 	new_node->next = NULL;
 	new_node->prev = NULL;
 	new_node->left_quote = NULL;

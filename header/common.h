@@ -17,6 +17,21 @@
 # include <stdlib.h>
 # include <stddef.h>
 
+typedef struct s_builtins      t_builtins;
+typedef struct s_environment   t_environment;
+typedef struct s_hashmap       t_hashmap;
+typedef struct s_hashmap_entry t_hashmap_entry;
+typedef struct s_input         t_input;
+typedef struct s_exec          t_exec;
+typedef struct s_parser        t_parser;
+typedef struct s_lexer         t_lexer;
+typedef struct s_linker        t_linker;
+typedef struct s_prompt        t_prompt;
+typedef struct s_shell         t_shell;
+typedef struct s_token         t_token;
+typedef struct s_token_2         t_token_2;
+typedef struct s_tokenizer     t_tokenizer;
+
 int		ft_has_bs(char *str);
 int		ft_atoi(const char *str);
 int		ft_isdigit(int c);

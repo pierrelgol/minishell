@@ -16,7 +16,7 @@ CFLAGS = -Wall                   \
          -Werror                 \
          -Wextra                 \
          -DDEBUG=1               \
-         -DDIRECT_IO=0           \
+         -DDIRECT_IO=1           \
          -fsanitize=address      \
          -fsanitize=undefined    \
          -fsanitize=integer      \
@@ -55,6 +55,7 @@ EXE_SOURCE_DIRS = source/.                   \
                   source/tokenizer           \
                   source/token               \
                   source/prompt              \
+                  source/GLUE                \
                   source/utils               
 ODIR = ./build
 

@@ -106,28 +106,28 @@ void	minishell_clear(t_minishell *self)
 	self->token_array = NULL;
 }
 
-void	minishell_loop(t_minishell *self)
-{
-	if (!self)
-		return ;
-	while (1)
-	{
-		display_prompt();
-		self->line = get_next_line(STDIN_FILENO);
-		remove_new_line(self);
-		if (!self->line)
-			break;
-		tokeniser(self);
-		//expander(self);
-		//display_token_id(self->token_list);
-		quoter(self);
-		guesser(self);
-		display_parsing_info(self);
-		//execute_command(self);
-		//set_tokenArray(self);
-		//fill_cmd_table(self);
-		//print_cmd_table(self);
-		//parent_process(self);
-		minishell_clear(self);
-	}
-}
+// void	minishell_loop(t_minishell *self)
+// {
+// 	if (!self)
+// 		return ;
+// 	while (1)
+// 	{
+// 		display_prompt();
+// 		self->line = get_next_line(STDIN_FILENO);
+// 		remove_new_line(self);
+// 		if (!self->line)
+// 			break;
+// 		tokeniser(self);
+// 		//expander(self);
+// 		//display_token_id(self->token_list);
+// 		quoter(self);
+// 		guesser(self);
+// 		display_parsing_info(self);
+// 		//execute_command(self);
+// 		//set_tokenArray(self);
+// 		//fill_cmd_table(self);
+// 		//print_cmd_table(self);
+// 		//parent_process(self);
+// 		minishell_clear(self);
+// 	}
+// }
