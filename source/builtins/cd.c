@@ -12,15 +12,49 @@
 
 #include "../../header/minishell.h"
 
-t_builtins *builtins_sync_cd(t_builtins *self)
+t_builtins_cd *cd_create(t_environment *env)
 {
-	char	path_buffer[PATH_MAX];
+	t_builtins_cd *self;
 
-	if (self->cd_cwd != )
-	self->cd_cwd = string_clone(getcwd(path_buffer, PATH_MAX));
+	self = memory_alloc(sizeof(t_builtins_cd));
+	if (!self)
+		return (NULL);
+	self->env = env;
+	self->cwd = getcwd(NULL, 0);
+	self->pwd = enviroment_get(env, "PWD");
+	self->opwd = enviroment_get(env, "OPWD");
 	return (self);
 }
-t_builtins *builtins_clear_cd(t_builtins *self);
-t_builtins *builtins_destroy_cd(t_builtins *self);
 
+bool cd_change_directory(t_builtins_cd *self, char *target)
+{
+	if (access(target, F_OK) == 0)
+	{
+		if (chdir(target) == 0)
+		{
+			memory_dealloc(self->opwd);
+			self->opwd = self->pwd;
+			enviroment_put(self->env, "OPWD", self->pwd);
+			self->pwd = self->cwd;
+			enviroment_put(self->env, "PWD", self->cwd);
+			self->cwd = string_clone(target);
+			return (true);
+		}
+	}
+	return (false);
+}
 
+t_builtins_cd *cd_destroy(t_builtins_cd *self)
+{
+	if (self)
+	{
+		if (self->cwd)
+			memory_dealloc(self->cwd);
+		if (self->pwd)
+			memory_dealloc(self->pwd);
+		if (self->opwd)
+			memory_dealloc(self->opwd);
+		memory_dealloc(self);
+	}
+	return (NULL);
+}

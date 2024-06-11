@@ -20,27 +20,27 @@ t_builtins *builtins_create(t_environment *env)
 	if (!self)
 		return (NULL);
 	self->env = env;
-	self->cd_cwd = builtins_sync_cd(self);
-	self->is_dirty = false;
+	self->blt_cd = cd_create(env);
+	self->blt_echo = echo_create(env);
+	self->blt_env = env_create(env);
+	self->blt_export = export_create(env);
+	self->blt_unset = unset_create(env);
+	self->blt_pwd = pwd_create(env);
 	return (self);
 }
 
-t_builtins *builtins_sync(t_builtins *self)
-{
-	self->is_dirty = true;
-	return (self);
-}
-
-t_builtins *builtins_clear(t_builtins *self)
-{
-	self->is_dirty = false;
-	return (self);
-}
 
 t_builtins *builtins_destroy(t_builtins *self)
 {
-	if (self->is_dirty)
-		builtins_clear(self);
-	memory_dealloc(self);
+	if (self)
+	{
+		self->blt_cd = cd_destroy(self->blt_cd);
+		self->blt_echo = echo_destroy(self->blt_echo);
+		self->blt_env = env_destroy(self->blt_env);
+		self->blt_export = export_destroy(self->blt_export);
+		self->blt_unset = unset_destroy(self->blt_unset);
+		self->blt_pwd = pwd_destroy(self->blt_pwd);
+		memory_dealloc(self);
+	}
 	return (NULL);
 }

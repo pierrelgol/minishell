@@ -12,8 +12,6 @@
 
 #include "../../header/minishell.h"
 
-// This function will return a shell, and it will create
-// every substructure that is needed for the shell to work
 t_shell *shell_create(int32_t argc, char **argv, char **envp)
 {
 	t_shell *self;
@@ -24,33 +22,14 @@ t_shell *shell_create(int32_t argc, char **argv, char **envp)
 	self->argc = argc;
 	self->argv = argv;
 	self->envp = envp;
-	// @STEP02 creating the environement variable hashmap
-	// this will be used extensively in almost every places where we need
-	// to get some variables from the environment
 	self->env = environment_create(envp);
-	// @STEOP03 this simple structure will handle everythin related to building the prompt
-	// meaning it will go and fetch the $PWD and join it to build the prompt;
 	self->prompt = prompt_create(self->env);
-	// @STEOP04 this structure will be responsible for getting the input from our user
-	// and it's one layer of abstraction that allow us to quickly switch between
-	// -DDIRECT_IO=0 && -DIRECT_IO=1 which is how we can decide if you want to use
-	// the shell with the fuzzer which uses argc/argv or with readline.
 	self->input = input_create(self->env, self->prompt, argc, argv);
-	// @STEP05 The tokenizer is the structure responsible for taking the inputs, and cutting in into
-	// tokens which will be stored inside a vector (an array that growth automatically and is iterable)
 	self->tokenizer = tokenizer_create();
-	// @STEP06 The linker is responsible for providing support to every
-	// structure that needs to be able to test and resolve paths.
 	self->linker = linker_create(self->env);
-	// @STEP07 The lexer is the structure responsible for identifying roughly the "type" of a token
-	// given the current syntax, and contextx, it will take the tokenizer token_vector output
-	// iterate over it and simply fill the token_kind field. It will also put inside the extra
-	// field the path found by the linker for CMD kind.
 	self->lexer = lexer_create(self->env, self->tokenizer, self->linker);
-	// @STEP08 --> in ./source/main.c
 	self->minishell = minishell_create(envp);
-
-	// @STEP08XXXXX this is where you add your stuff
+	self->builtins = builtins_create(self->env);
 	return (self);
 }
 
@@ -59,31 +38,13 @@ bool shell_run(t_shell *shell)
 	char     *line;
 	t_vector *token_vector;
 
-	// @STEP09 here we request the line that input got
-	line = input_get(shell->input); // -> ./source/input/input.c
+	line = input_get(shell->input);
 	if (!line)
 		return (false);
-	// @STEP15 if the lin is null we stop the loop and clean everything
-	// by calling shell_destroy() in // -> ./source/main.c
 	print("%s\n", line);
-	// @STEP16 we call the tokenizer and pass it the current line as well
-	// as our separator those will be kept in the split
-	// --> ./source/tokenizer/tokenizer.c
 	token_vector = tokenizer_tokenize(shell->tokenizer, line, " \n\'\"");
-	// @STEP20 we now have a token_vector full of our split we pass it to
-	// the lexer which will identify all of the types for our tokens
-	// --> ./source/lexer/lexer.c
 	token_vector = lexer_lex(shell->lexer, token_vector);
-	// @STEP22 we now have a token vector where every token structure has
-	// a 1: ptr --> with the string splited in the tokenizer
-	// a 2: len --> with the length of the ptr field
-	// a 3: kind --> with the kind found by the lexer
-	// we can now print all of our debug information
-	// you can also call dbg_shell_print_verbose(shell) if you want
-	// some extra informations
-
 	// dbg_shell_print_verbose(shell);
-
 	from_token_vector_to_token_list(shell, shell->minishell, token_vector);
 	// quoter(shell->minishell);
 	guesser(shell->minishell);
@@ -92,14 +53,7 @@ bool shell_run(t_shell *shell)
 	fill_cmd_table(shell->minishell);
 	parent_process(shell->minishell);
 	minishell_clear(shell->minishell);
-
-
-	// @STEP22XXXXXX This is where you add your stuff
-
-	// @STEP22XXXXX Add the debug info 
-
 	shell->is_dirty = true;
-	// @STEP23 back to --> ./source/main.c
 	return (true);
 }
 
@@ -132,6 +86,8 @@ t_shell *shell_destroy(t_shell *self)
 			linker_destroy(self->linker);
 		if (self->minishell)
 			minishell_destroy(self->minishell);
+		if (self->builtins)
+			builtins_destroy(self->builtins);
 		memory_dealloc(self);
 	}
 	return (NULL);

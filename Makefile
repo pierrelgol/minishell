@@ -45,6 +45,7 @@ LIBFT_NAME = $(LIBFT_DIR)/libft.a
 EXE_HEADER_DIR = ./header
 EXE_SOURCE_DIRS = source/.                   \
                   source/bifernan            \
+                  source/builtins            \
                   source/core                \
                   source/debug               \
                   source/environment         \

@@ -32,9 +32,6 @@ t_vector *lexer_lex(t_lexer *self, t_vector *input)
 	(void) self;
 	self->token_vector = input;
 
-	// every function here follows the same structure
-	// goto --> ./source/lexer/lexer_analyzer1.c to see more in depth
-	// explaination in @STEP21
 	lexer_identify_all_whitespaces(self, input);
 	lexer_identify_all_quotes(self, input);
 	lexer_identify_all_redirect(self, input);
@@ -54,8 +51,6 @@ t_vector *lexer_lex(t_lexer *self, t_vector *input)
 	lexer_identify_all_operators(self, input);
 
 	self->is_dirty = true;
-	// @STEP22
-	// back to ./source/core/shell.c
 	return (input);
 }
 

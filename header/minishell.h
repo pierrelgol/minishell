@@ -62,6 +62,7 @@ struct s_shell
 	t_prompt      *prompt;
 	t_tokenizer   *tokenizer;
 	t_minishell   *minishell;
+	t_builtins    *builtins;
 };
 
 t_shell *shell_create(int32_t argc, char **argv, char **envp);
@@ -224,39 +225,79 @@ t_lexer *lexer_destroy(t_lexer *self);
 
 struct s_builtins
 {
-	t_environment *env;
-	char          *cd_cwd;
-	bool           is_dirty;
+	t_environment     *env;
+	t_builtins_cd     *blt_cd;
+	t_builtins_echo   *blt_echo;
+	t_builtins_env    *blt_env;
+	t_builtins_export *blt_export;
+	t_builtins_unset  *blt_unset;
+	t_builtins_pwd    *blt_pwd;
 };
 
 t_builtins *builtins_create(t_environment *env);
-t_builtins *builtins_clear(t_builtins *self);
-t_builtins *builtins_sync(t_builtins *self);
 t_builtins *builtins_destroy(t_builtins *self);
 
-t_builtins *builtins_clear_echo(t_builtins *self);
-t_builtins *builtins_sync_echo(t_builtins *self);
-t_builtins *builtins_destroy_echo(t_builtins *self);
+struct s_builtins_cd
+{
+	t_environment *env;
+	char          *pwd;
+	char          *opwd;
+	char          *cwd;
+};
 
-t_builtins *builtins_clear_cd(t_builtins *self);
-t_builtins *builtins_sync_cd(t_builtins *self);
-t_builtins *builtins_destroy_cd(t_builtins *self);
+t_builtins_cd *cd_create(t_environment *env);
+bool           cd_change_directory(t_builtins_cd *self, char *target);
+t_builtins_cd *cd_destroy(t_builtins_cd *self);
 
-t_builtins *builtins_clear_env(t_builtins *self);
-t_builtins *builtins_sync_env(t_builtins *self);
-t_builtins *builtins_destroy_env(t_builtins *self);
+struct s_builtins_env
+{
+	t_environment *env;
+	t_vector      *var;
+};
 
-t_builtins *builtins_clear_export(t_builtins *self);
-t_builtins *builtins_sync_export(t_builtins *self);
-t_builtins *builtins_destroy_export(t_builtins *self);
+t_builtins_env *env_create(t_environment *env);
+bool            env_put(t_builtins_env *self, char *variable, char *value);
+bool            env_print_one(t_builtins_env *self, char *variable);
+bool            env_print_all(t_builtins_env *self);
+t_builtins_env *env_destroy(t_builtins_env *self);
 
-t_builtins *builtins_clear_pwd(t_builtins *self);
-t_builtins *builtins_sync_pwd(t_builtins *self);
-t_builtins *builtins_destroy_pwd(t_builtins *self);
+struct s_builtins_echo
+{
+	t_environment *env;
+	int32_t        fd;
+};
 
-t_builtins *builtins_clear_unset(t_builtins *self);
-t_builtins *builtins_sync_unset(t_builtins *self);
-t_builtins *builtins_destroy_unset(t_builtins *self);
+t_builtins_echo *echo_create(t_environment *env);
+bool             echo_print(t_builtins_echo *self, char *message, bool flag);
+t_builtins_echo *echo_destroy(t_builtins_echo *self);
+
+struct s_builtins_export
+{
+	t_environment *env;
+};
+
+t_builtins_export *export_create(t_environment *env);
+bool               export_export(t_builtins_export *self, char *k, char *v);
+t_builtins_export *export_destroy(t_builtins_export *self);
+
+struct s_builtins_unset
+{
+	t_environment *env;
+};
+
+t_builtins_unset *unset_create(t_environment *env);
+bool              unset_unset(t_builtins_unset *self, char *variable);
+t_builtins_unset *unset_destroy(t_builtins_unset *self);
+
+struct s_builtins_pwd
+{
+	t_environment *env;
+	char          *pwd;
+};
+
+t_builtins_pwd *pwd_create(t_environment *env);
+bool            pwd_print(t_builtins_pwd *self);
+t_builtins_pwd *pwd_destroy(t_builtins_pwd *self);
 
 void dbg_shell_print(t_shell *shell);
 void dbg_environment_print(t_environment *env);
@@ -277,6 +318,6 @@ char **simple_split(const char *const source, const int32_t ch);
 
 // SCOTCH
 
-void	from_token_vector_to_token_list(t_shell *shell ,t_minishell *minishell, t_vector *token_vector);
+void from_token_vector_to_token_list(t_shell *shell, t_minishell *minishell, t_vector *token_vector);
 
 #endif
