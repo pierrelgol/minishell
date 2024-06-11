@@ -71,5 +71,6 @@ int	test_if_executable(t_minishell *sh, t_token_2 *token)
 		free(exec_path);
 		return (1);
 	}
+	free(exec_path);
 	return (0);
 }

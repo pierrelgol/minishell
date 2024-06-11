@@ -130,19 +130,19 @@ void	execute(t_minishell *sh, t_cmd *self)
 	self->fd_array[0] = open_all_input_files_and_get_last(self->input_vector);
 	self->fd_array[1] = open_all_output_files_and_get_last(self->output_vector);
 	self->fd_array[2] = open_all_append_files_and_get_last(self->o_append_vector);
-	if (cmd_has_input_redirect(self))
+	if (cmd_has_input_redirect(self) && self->fd_array[0] != -1)
 	{
 		dup2(self->fd_array[0], STDIN_FILENO);
 		close(self->fd_array[0]);
 	}
-	if (cmd_has_output_redirect(self) && self->output_type == TRUNC)
+	if (cmd_has_output_redirect(self) && self->output_type == TRUNC && self->fd_array[1] != -1)
 	{
 		dup2(self->fd_array[1], STDOUT_FILENO);
 		close(self->fd_array[1]);
 		if (cmd_has_append_redirect(self))
 			close(self->fd_array[2]);
 	}
-	if (cmd_has_append_redirect(self) && self->output_type == APPEND)
+	if (cmd_has_append_redirect(self) && self->output_type == APPEND && self->fd_array[2] != -1)
 	{
 		dup2(self->fd_array[2], STDOUT_FILENO);
 		close(self->fd_array[2]);
@@ -150,5 +150,6 @@ void	execute(t_minishell *sh, t_cmd *self)
 			close(self->fd_array[1]);
 	}
 	execve(self->cmd_vector[0], self->cmd_vector, sh->envp);	
-	minishell_destroy(sh);
+	//@TODO CHECK FOR LEAKS
+	// minishell_destroy(sh);
 }

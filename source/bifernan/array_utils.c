@@ -24,6 +24,7 @@ void	free_array(char ***array)
 		free(*array[i]);
 		i++;
 	}
+	free(*array[i]);
 	free(*array);
 	*array = NULL;
 }

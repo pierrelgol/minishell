@@ -46,7 +46,7 @@ bool shell_run(t_shell *shell)
 	token_vector = lexer_lex(shell->lexer, token_vector);
 	// dbg_shell_print_verbose(shell);
 	from_token_vector_to_token_list(shell, shell->minishell, token_vector);
-	// quoter(shell->minishell);
+	quoter(shell->minishell);
 	guesser(shell->minishell);
 	// display_parsing_info(shell->minishell);
 	set_token_Array(shell->minishell);

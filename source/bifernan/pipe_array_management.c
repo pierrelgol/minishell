@@ -14,6 +14,7 @@ void	create_pipe_array(t_minishell *sh, cmdTable *self)
 	self->pipe_array = (int **)malloc(sizeof(int *) * self->pipe_number);
 	if (!self->pipe_array)
 	{
+		abort();
 		perror("create_pipe_array : allocation failed\n");
 		minishell_destroy(sh);
 		exit(EXIT_FAILURE);
@@ -32,6 +33,7 @@ void	create_pipe_array(t_minishell *sh, cmdTable *self)
 			}
 			free(self->pipe_array);
 			perror("create_pipe_array : allocation failed\n");
+			abort();
 			minishell_destroy(sh);
 			exit(EXIT_FAILURE);
 		}

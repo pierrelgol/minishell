@@ -17,9 +17,6 @@ CFLAGS = -Wall                   \
          -Wextra                 \
          -DDEBUG=1               \
          -g3                     \
-         -fsanitize=address      \
-         -fsanitize=undefined    \
-         -fsanitize=integer      \
          -fno-omit-frame-pointer \
          -MMD -MP
 

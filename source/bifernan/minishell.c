@@ -20,6 +20,7 @@ void	minishell_get_extended_line(t_minishell *self)
 	self->extended_line = string_add_delimiter(self->line, self->sep, '@');
 	if (!self->extended_line)
 	{
+		abort();
 		minishell_destroy(self);
 		exit(EXIT_FAILURE);
 	}
@@ -63,6 +64,8 @@ t_minishell	*minishell_create(char *envp[])
 	self->token_array = NULL;
 	if (!self->token_list)
 	{
+
+		abort();
 		minishell_destroy(self);
 		perror("minishell_create");
 		exit(EXIT_FAILURE);
@@ -70,6 +73,7 @@ t_minishell	*minishell_create(char *envp[])
 	self->cmd_table = cmdTable_create() ;
 	if (!self->cmd_table)
 	{
+		abort();
 		minishell_destroy(self);
 		perror("minishell_create");
 		exit(EXIT_FAILURE);
@@ -86,7 +90,10 @@ void	minishell_destroy(t_minishell *self)
 	if (self->extended_line)
 		free(self->extended_line);
 	if (self->token_list)
+	{
 		token_list_clear(self->token_list);
+		token_list_destroy(self->token_list);		
+	}
 	if (self->cmd_table)
 		cmdTable_destroy(self->cmd_table);
 	free(self);

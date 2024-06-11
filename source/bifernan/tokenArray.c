@@ -38,18 +38,21 @@ tokenList	**tokenArray_init(t_minishell *sh)
 
 	if (!sh || !sh->token_list)
 	{
+		abort();
 		minishell_destroy(sh);
 		exit(EXIT_FAILURE);
 	}
 	size = tokenArray_tokenList_count(sh->token_list);
 	if (!size)
 	{
+		abort();
 		minishell_destroy(sh);
 		exit(EXIT_FAILURE);
 	}
 	token_array = (tokenList **)malloc(sizeof(tokenList *) * (size + 1));
 	if (!token_array)
 	{
+		abort();
 		minishell_destroy(sh);
 		exit(EXIT_FAILURE);
 	}
@@ -59,6 +62,7 @@ tokenList	**tokenArray_init(t_minishell *sh)
 		token_array[i] = token_list_new();
 		if (!token_array)
 		{
+			abort();
 			minishell_destroy(sh);
 			exit(EXIT_FAILURE);
 		}

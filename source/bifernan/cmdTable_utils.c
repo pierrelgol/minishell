@@ -28,7 +28,14 @@ void	cmdTable_destroy(cmdTable *self)
 	while (temp != NULL)
 	{
 		to_delete = temp;
-		free(to_delete->cmd_vector);
+		if (to_delete->cmd_vector)
+			free_array(&to_delete->cmd_vector);
+		if (to_delete->o_append_vector)
+			free_array(&to_delete->o_append_vector);
+		if (to_delete->input_vector)
+			free_array(&to_delete->input_vector);
+		if (to_delete->output_vector)
+			free_array(&to_delete->output_vector);
 		free(to_delete);
 		temp = temp->next;
 	}
