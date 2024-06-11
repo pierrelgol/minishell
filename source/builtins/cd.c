@@ -32,7 +32,6 @@ bool cd_change_directory(t_builtins_cd *self, char *target)
 	{
 		if (chdir(target) == 0)
 		{
-			memory_dealloc(self->opwd);
 			self->opwd = self->pwd;
 			enviroment_put(self->env, "OPWD", self->pwd);
 			self->pwd = self->cwd;
@@ -50,10 +49,6 @@ t_builtins_cd *cd_destroy(t_builtins_cd *self)
 	{
 		if (self->cwd)
 			memory_dealloc(self->cwd);
-		if (self->pwd)
-			memory_dealloc(self->pwd);
-		if (self->opwd)
-			memory_dealloc(self->opwd);
 		memory_dealloc(self);
 	}
 	return (NULL);

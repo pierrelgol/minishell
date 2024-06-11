@@ -68,6 +68,8 @@ bool	enviroment_put(t_environment *self, char *variable, char *value)
 	if (!hashmap_get(self->vars, variable))
 		vector_insert_sorted(self->keys, (uintptr_t)string_clone(variable),
 			enviroment_compare);
+	enviroment_rem(self, variable);
+	vector_insert_sorted(self->keys, (uintptr_t)string_clone(variable), enviroment_compare);
 	return (hashmap_put(self->vars, variable, value));
 }
 
